@@ -4,11 +4,16 @@ from aiogram.filters import Command, CommandObject, CommandStart
 
 from keyboards import kb
 
+from data.database import WorkDB
+
+db = WorkDB("./data/main.db")
+
 router = Router()
 
 @router.message(CommandStart())
 async def start(message : Message):
     await message.answer(f"Hi <b>{message.from_user.full_name}</b>", reply_markup=kb.main)
+    db.setTest(message.from_user.id, message.from_user.full_name, message.from_user.username)    
 
 
 @router.message(F.text == "На главный экран")
