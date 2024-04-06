@@ -1,5 +1,5 @@
 
 
 #       не забываем ставить свой токен
-token = "AaBbCc:0987654321"
+token = "6496642129:AAHVuOJf1_wRztRkPzMHAWMTaiAFLHrGkro"
 
