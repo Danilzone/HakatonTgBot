@@ -2,8 +2,9 @@
 
 
 from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
-                           InlineKeyboardMarkup, InlineKeyboardButton)
-
+                           InlineKeyboardMarkup, InlineKeyboardButton,
+                           ReplyKeyboardRemove)
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
@@ -33,3 +34,16 @@ answer = ReplyKeyboardMarkup(keyboard=[
 ],
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
+
+
+def profile(text: str | list):
+    builder = ReplyKeyboardBuilder()
+
+    if isinstance(text, str):
+        text = [text]
+
+    [builder.button(text=txt) for txt in text]
+    return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+
+
+rmk = ReplyKeyboardRemove()
