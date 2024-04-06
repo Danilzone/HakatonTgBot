@@ -17,13 +17,15 @@ class WorkDB:
         except Exception:
             console.print_exception(show_locals=True)
             
+            
     def getTest(self):
         try: 
             res = self.c.execute(' SELECT * FROM `users` ').fetchall()
             self.conn.commit()
             print(res)
         except Exception:
-                    console.print_exception(show_locals=True)
+            console.print_exception(show_locals=True)
+            
 
     def setTest(self, user_id, user_name, user_dogname):
         self.user_id = user_id
@@ -37,5 +39,21 @@ class WorkDB:
             
         except Exception:
             console.print_exception(show_locals=True)
+            
+            
+    def getRequests(self):
+        try:
+            res = self.c.execute(' SELECT * FROM `requests` ').fetchall()
+            self.conn.commit()
+        except Exception:
+            console.print_exctption(show_locals=True) 
+    
+    
+    def setRequest(self, user_id, user_name, user_dogname, request_title, request_text):
+        self.user_id = user_id
+        self.user_name = user_name
+        self.user_dogname = user_dogname
+        self.request_title = request_title
+        self.request_text = request_text
 
 
