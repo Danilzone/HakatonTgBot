@@ -45,17 +45,26 @@ class WorkDB:
         try:
             res = self.c.execute(' SELECT * FROM `requests` ').fetchall()
             self.conn.commit()
+<<<<<<< HEAD
             print(res)
+=======
+>>>>>>> dbb9f4fef08e871b1c2e4795891baf8bcd9c72c5
         except Exception:
             console.print_exctption(show_locals=True) 
     
     
     def setRequest(self, user_id, user_name, user_dogname, request_title, request_text):
+<<<<<<< HEAD
         
         self.user_id = user_id
         self.user_name = user_name
         self.user_dogname = user_dogname
         
+=======
+        self.user_id = user_id
+        self.user_name = user_name
+        self.user_dogname = user_dogname
+>>>>>>> dbb9f4fef08e871b1c2e4795891baf8bcd9c72c5
         self.request_title = request_title
         self.request_text = request_text
 
