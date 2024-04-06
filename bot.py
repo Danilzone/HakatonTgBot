@@ -1,7 +1,7 @@
 import asyncio 
 from config import token
 from aiogram import Bot, Dispatcher
-from handlers import commands
+from handlers import commands, questionaire
 
     #                       parser_mode - нужен для форматирование текста в сообщениях
     #                                               (выведет в консоль предупреждение - игнорим)
@@ -13,6 +13,7 @@ async def main():
 
     dp.include_routers(
         commands.router,
+        questionaire.router,
     )
 
     await bot.delete_webhook(drop_pending_updates=True)
