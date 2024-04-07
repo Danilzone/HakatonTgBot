@@ -51,17 +51,9 @@ def profile(text: str | list):
     [builder.button(text=txt[1]) for txt in text]
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
-def my_requests(text: list):
-    # builder = ReplyKeyboardBuilder()
-    # [builder.button(text=txt[1]) for txt in text]
-    # return builder.as_markup()
-
+def my_requests(text: str |list):
     builder = InlineKeyboardBuilder()
-    # builder.row(
-    #     InlineKeyboardButton(text=f"{text[1]}", callback_data=f"{text[0][0]}"),
-    #     InlineKeyboardButton(text=f"{text[1][1]}", callback_data=f"{text[0][1]}"),
-    #     width=2
-    # )
-    [builder.row(InlineKeyboardButton(text=f"{text[0][1]}", callback_data=f"{text[0][0]}"), width=2)]
+
+    [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"{txt[0]}"), width=2) for txt in text ]
     return builder.as_markup()
 rmk = ReplyKeyboardRemove()
