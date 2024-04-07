@@ -40,7 +40,9 @@ class WorkDB:
             
         except Exception:
             console.print_exception(show_locals=True)
-            
+
+
+    # Отправка и получение 'запросов'  
 
     def setRequest(self, user_id, user_name, user_dogname, request_title, request_text):
 
@@ -54,6 +56,8 @@ class WorkDB:
 
         self.request_title = request_title
         self.request_text = request_text
+        
+        # Проверка на то, есть ли такая статья уже
 
         try:
             self.c.execute('INSERT INTO `requests` ("user_id", "user_name", "user_dogname", "request_title", "request_text") VALUES (?, ?, ?, ?, ?)', (user_id, user_name, user_dogname, request_title, request_text,))
@@ -64,12 +68,41 @@ class WorkDB:
             console.print_exctption(show_locals=True)
 
 
-    def getRequests(self):
+    def getRequests(self, user_id):
+        self.user_id = user_id
+        titles = self.c.execute(' SELECT "id", "request_title" FROM `requests` WHERE "user_id" = ? ', (user_id,)).fetchall()
+        self.conn.commit()
+      
         try:
-            res = self.c.execute(' SELECT * FROM `requests` ').fetchall()
+            full_requests = self.c.execute(f' SELECT * FROM `requests` WHERE "user_id" = ? ', (user_id,)).fetchall()
             self.conn.commit()
-            print(res)
+            
+            return full_requests, titles
         except Exception:
             console.print_exctption(show_locals=True) 
     
+
+    # Редактирование существующего 'запроса' и его удаление
+
+    def editRequest(self, request_id, user_id,  user_name, user_dogname, new_request_title, new_request_text ):
+        self.request_id = request_id
+        self.user_id = user_id
+
+        self.user_name = user_name
+        self.user_dogname = user_dogname
+        self.new_request = user_dogname
+
+        self.new_request_title = new_request_title
+        self.new_request_text = new_request_text
+
+
+
     
+
+# ТЕСТИРОВАНИЕ
+
+# db = WorkDB("main.db")
+# print(
+    # db.getRequests("1270679070")
+# )
+# db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый")
