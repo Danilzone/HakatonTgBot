@@ -16,7 +16,8 @@ async def start(message : Message):
 
     # db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
     # db.setRequest(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username, "Майнинг", "Как в питоне сделать майнер?")
-    db.getRequests()
+    # db.getRequests()
+    
 @router.message(F.text == "На главный экран")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",

@@ -23,7 +23,12 @@ office = ReplyKeyboardMarkup(keyboard=[
 
 
 requests = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text="Создать запрос"), KeyboardButton(text="На главный экран")]
+    [
+        [
+            KeyboardButton(text="Создать запрос"), 
+        ], KeyboardButton(text="На главный экран")
+    ],
+    
 ],
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
