@@ -80,6 +80,20 @@ class WorkDB:
             return full_requests, titles
         except Exception:
             console.print_exctption(show_locals=True) 
+
+
+    def getRequest(self, user_id, request_id):
+        self.user_id = user_id
+        self.request_id = request_id
+        try:
+                request = self.c.execute(' SELECT "request_title", "request_text" FROM `requests` WHERE "id"= ? AND "user_id" = ? ',(request_id, user_id,)).fetchall()
+                self.conn.commit()
+                title = request[0][0]
+                text = request[0][1]
+                return title, text 
+        
+        except Exception:
+            console.print_exctption(show_locals=True) 
     
 
     # Редактирование существующего 'запроса' и его удаление
@@ -96,6 +110,9 @@ class WorkDB:
         self.new_request_text = new_request_text
 
 
+    def deletRequest(self, request_id, user_id):
+        self.request_id = request_id
+        self.user_id = user_id
 
     
 
@@ -103,6 +120,6 @@ class WorkDB:
 
 # db = WorkDB("main.db")
 # print(
-    # db.getRequests("1270679070")
+# print(db.getRequest("1270679070", 6)[1])
 # )
 # db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый")

@@ -6,9 +6,6 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
                            ReplyKeyboardRemove)
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
-# from data.database import WorkDB
-# 
-# db = WorkDB("../data/main.db")
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
@@ -19,7 +16,7 @@ main = ReplyKeyboardMarkup(keyboard=[
 
 
 office = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text="Зарегистрироваться"), KeyboardButton(text="На главный экран")],
+    [KeyboardButton(text="Создать запрос"), KeyboardButton(text="На главный экран")],
     [KeyboardButton(text="Мои ответы"), KeyboardButton(text="Мои запросы")]
 ],
                             resize_keyboard=True,
@@ -33,6 +30,10 @@ requests = ReplyKeyboardMarkup(keyboard=[
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
 
+interact_request = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text="Редактировать запрос"), KeyboardButton(text="Удалить запрос")],
+        [KeyboardButton(text="На главный экран")]
+])
 
 
 answer = ReplyKeyboardMarkup(keyboard=[
@@ -54,6 +55,6 @@ def profile(text: str | list):
 def my_requests(text: str |list):
     builder = InlineKeyboardBuilder()
 
-    [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"{txt[0]}"), width=2) for txt in text ]
+    [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"{txt[0]}")) for txt in text ]
     return builder.as_markup()
 rmk = ReplyKeyboardRemove()
