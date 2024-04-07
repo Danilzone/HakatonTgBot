@@ -1,10 +1,14 @@
 # Клавиатура
-
+from rich import print
 
 from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
                            InlineKeyboardMarkup, InlineKeyboardButton,
                            ReplyKeyboardRemove)
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+
+# from data.database import WorkDB
+# 
+# db = WorkDB("../data/main.db")
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
@@ -30,6 +34,7 @@ requests = ReplyKeyboardMarkup(keyboard=[
                             input_field_placeholder="Выберите пунтк меню.")
 
 
+
 answer = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Ответить на запрос"), KeyboardButton(text="На главный экран")]
 ],
@@ -43,8 +48,20 @@ def profile(text: str | list):
     if isinstance(text, str):
         text = [text]
 
-    [builder.button(text=txt) for txt in text]
+    [builder.button(text=txt[1]) for txt in text]
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
+def my_requests(text: list):
+    # builder = ReplyKeyboardBuilder()
+    # [builder.button(text=txt[1]) for txt in text]
+    # return builder.as_markup()
 
+    builder = InlineKeyboardBuilder()
+    # builder.row(
+    #     InlineKeyboardButton(text=f"{text[1]}", callback_data=f"{text[0][0]}"),
+    #     InlineKeyboardButton(text=f"{text[1][1]}", callback_data=f"{text[0][1]}"),
+    #     width=2
+    # )
+    [builder.row(InlineKeyboardButton(text=f"{text[0][1]}", callback_data=f"{text[0][0]}"), width=2)]
+    return builder.as_markup()
 rmk = ReplyKeyboardRemove()
