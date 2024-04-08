@@ -9,6 +9,9 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 creating_a_request = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Изменить", callback_data="change")],
+    [InlineKeyboardButton(text="Тэг", callback_data="tag")],
+    [InlineKeyboardButton(text="Тема", callback_data="topic")],
+    [InlineKeyboardButton(text="Текст", callback_data="text")],
     [InlineKeyboardButton(text="Отправить", callback_data="send")],
     [InlineKeyboardButton(text="Удалить", callback_data="remove")]
 ])
@@ -67,9 +70,12 @@ def profile(text: str | list):
     [builder.button(text=txt[1]) for txt in text]
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
+
 def my_requests(text: str |list):
     builder = InlineKeyboardBuilder()
 
     [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"REQ {txt[0]}")) for txt in text ]
     return builder.as_markup()
+
+
 rmk = ReplyKeyboardRemove()
