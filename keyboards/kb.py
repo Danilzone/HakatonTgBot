@@ -7,6 +7,13 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
+creating_a_request = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Изменить", callback_data="change")],
+    [InlineKeyboardButton(text="Отправить", callback_data="send")],
+    [InlineKeyboardButton(text="Удалить", callback_data="remove")]
+])
+
+
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
     [KeyboardButton(text="Запросы"), KeyboardButton(text="Рейтинговая таблица")]
@@ -38,8 +45,8 @@ interact_request = ReplyKeyboardMarkup(keyboard=[
                             resize_keyboard=True)
 
 created_request_inline = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Изменить", callback_data="изменить"), InlineKeyboardButton(text="Отправить", callback_data="отправить")],
-        [InlineKeyboardButton(text="Удалить", callback_data="удалить")],
+        [InlineKeyboardButton(text="Изменить", callback_data="change"), InlineKeyboardButton(text="Отправить", callback_data="send")],
+        [InlineKeyboardButton(text="Отменить", callback_data="delet")],
 ])
 # -----------------------------------------------------------
 
@@ -63,6 +70,6 @@ def profile(text: str | list):
 def my_requests(text: str |list):
     builder = InlineKeyboardBuilder()
 
-    [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"{txt[0]}")) for txt in text ]
+    [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"REQ {txt[0]}")) for txt in text ]
     return builder.as_markup()
 rmk = ReplyKeyboardRemove()

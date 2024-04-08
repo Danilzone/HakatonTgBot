@@ -15,6 +15,7 @@ router = Router()
 
 console = Console()
 
+
 @router.message(CommandStart())
 async def start(message : Message):
     await message.answer(f"Hi <b>{message.from_user.full_name}</b>", reply_markup=kb.main)
@@ -22,6 +23,7 @@ async def start(message : Message):
     # db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
     # db.setRequest(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username, "Майнинг", "Как в питоне сделать майнер?")
     # db.getRequests()
+
 
 @router.message(F.text.lower() == "на главный экран")
 async def cmd_refund(message: Message):
@@ -33,6 +35,7 @@ async def cmd_refund(message: Message):
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
                         reply_markup=kb.office)
+
 
 @router.message(F.text.lower() == "мои запросы")
 async def cmd_refund(message: Message):
@@ -57,11 +60,21 @@ async def cmd_refund(message: Message):
 
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'
 
-@router.callback_query()
+@router.callback_query(F.data[:4] == "REQ ")
 async def callback(call: CallbackQuery):
-    request = db.getRequest(call.from_user.id, call.data)
+    print(call.data[4:])
+    request = db.getRequest(call.from_user.id, call.data[4:])
+    await callback.answer("Загрузка")
     await call.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request)
 
+
+@router.callback_query(F.data == "change")
+async def change(callback: CallbackQuery):
+    try:
+        await callback.answer("Загрузка")
+        await callback.message.answer("Что вы хотите изменить?")
+    except Exception:
+        console.print_exctption(show_locals=True)
 
 
 
