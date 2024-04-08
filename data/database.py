@@ -117,13 +117,6 @@ class WorkDB:
         self.conn.commit()
         
 
-
-    def deletRequest(self, request_id, user_id):
-        self.request_id = request_id
-        self.user_id = user_id
-
-    
-
 # ТЕСТИРОВАНИЕ
 
 # db = WorkDB("main.db")
