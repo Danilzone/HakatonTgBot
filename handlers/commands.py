@@ -60,11 +60,21 @@ async def cmd_refund(message: Message):
 
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'
 
-@router.callback_query()
+@router.callback_query(F.data[:4] == "REQ ")
 async def callback(call: CallbackQuery):
-    request = db.getRequest(call.from_user.id, call.data)
+    print(call.data[4:])
+    request = db.getRequest(call.from_user.id, call.data[4:])
+    await callback.answer("Загрузка")
     await call.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request)
 
+
+@router.callback_query(F.data == "change")
+async def change(callback: CallbackQuery):
+    try:
+        await callback.answer("Загрузка")
+        await callback.message.answer("Что вы хотите изменить?")
+    except Exception:
+        console.print_exctption(show_locals=True)
 
 
 

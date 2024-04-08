@@ -8,8 +8,10 @@ from keyboards import kb
 from keyboards.kb import profile
 from keyboards.kb import created_request_inline
 
-router = Router()
+from rich.console import Console
 
+router = Router()
+console = Console()
 
 @router.message(F.text.lower() == "создать запрос")
 async def fill_profile(message: Message, state: FSMContext):
@@ -52,9 +54,6 @@ async def fill_profile(message: Message, state: FSMContext):
     )
 
 
-@router.callback_query(F.data == "change")
-async def change(callback: CallbackQuery):
-    await callback.answer("Вы хотите изменить запрос")
-    await callback.message.answer("Что вы хотите изменить?")
+
 
     
