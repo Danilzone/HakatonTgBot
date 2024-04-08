@@ -94,6 +94,15 @@ class WorkDB:
 
         self.new_request_title = new_request_title
         self.new_request_text = new_request_text
+    
+    
+    def deletRequest(self, user_id, request_id):
+        self.user_id = user_id
+        self.request_id = request_id
+        
+        self.c.execute('DELETE FROM requests WHERE id = ? AND user_id = ?')
+        self.conn.commit()
+        
 
 
 
