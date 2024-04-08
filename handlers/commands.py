@@ -77,6 +77,33 @@ async def change(callback: CallbackQuery):
         console.print_exctption(show_locals=True)
 
 
+@router.callback_query(F.data == "tag")
+async def tag(callback: CallbackQuery):
+    try:
+        await callback.answer("Загрузка")
+        await callback.message.answer("Напишите новые тэги")
+    except Exception:
+        console.print_exctption(show_locals=True)
+
+
+@router.callback_query(F.data == "topic")
+async def topic(callback: CallbackQuery):
+    try:
+        await callback.answer("Загрузка")
+        await callback.message.answer("Напишите новую тему")
+    except Exception:
+        console.print_exctption(show_locals=True)
+
+
+@router.callback_query(F.data == "text")
+async def text(callback: CallbackQuery):
+    try:
+        await callback.answer("Загрузка")
+        await callback.message.answer("Напишите новый текст")
+    except Exception:
+        console.print_exctption(show_locals=True)
+
+
 
 # @router.message()
 # async def cmds(message: Message):
