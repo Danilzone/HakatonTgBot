@@ -98,16 +98,24 @@ class WorkDB:
 
     # Редактирование существующего 'запроса' и его удаление
 
-    def editRequest(self, request_id, user_id,  user_name, user_dogname, new_request_title, new_request_text ):
+    def editRequest(self, request_id, user_id, request_title, request_text):
         self.request_id = request_id
         self.user_id = user_id
 
-        self.user_name = user_name
-        self.user_dogname = user_dogname
-        self.new_request = user_dogname
+        self.request_title = request_title
+        self.request_text = request_text
 
-        self.new_request_title = new_request_title
-        self.new_request_text = new_request_text
+        
+        self.c.execute('UPDATE `requests` SET "request_title" = ?, "request_text" = ? WHERE id = ? AND user_id = ?', (request_id, user_id, request_title, request_text))
+    
+    
+    def deletRequest(self, user_id, request_id):
+        self.user_id = user_id
+        self.request_id = request_id
+        
+        self.c.execute('DELETE FROM requests WHERE id = ? AND user_id = ?')
+        self.conn.commit()
+        
 
 
     def deletRequest(self, request_id, user_id):
