@@ -54,6 +54,34 @@ async def fill_profile(message: Message, state: FSMContext):
     )
 
 
+@router.callback_query(F.data == "change")
+async def change(callback: CallbackQuery):
+    await callback.answer("1")
+    await callback.message.edit_text(text="Выберите изменение", reply_markup=kb.change_request_inline)
+
+
+@router.callback_query(F.data == "title")
+async def change(callback: CallbackQuery):
+    print(callback.data)
+    await callback.answer("1")
+    await callback.message.edit_text(text="Введите новую тему")
+
+
+@router.callback_query(F.data == "tags")
+async def change(callback: CallbackQuery):
+    await callback.answer("")
+    await callback.message.edit_text(text="Введите новые тэги")
+
+
+@router.callback_query(F.data == "text")
+async def change(callback: CallbackQuery):
+    await callback.answer("")
+    await callback.message.edit_text(text="Введите новый текст")
+
+
+
+
+
 
 
     

@@ -7,16 +7,6 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
-creating_a_request = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Изменить", callback_data="change")],
-    [InlineKeyboardButton(text="Тэг", callback_data="tag")],
-    [InlineKeyboardButton(text="Тема", callback_data="topic")],
-    [InlineKeyboardButton(text="Текст", callback_data="text")],
-    [InlineKeyboardButton(text="Отправить", callback_data="send")],
-    [InlineKeyboardButton(text="Удалить", callback_data="remove")]
-])
-
-
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
     [KeyboardButton(text="Запросы"), KeyboardButton(text="Рейтинговая таблица")]
@@ -59,6 +49,12 @@ answer = ReplyKeyboardMarkup(keyboard=[
 ],
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
+
+
+change_request_inline = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Тема", callback_data="title"), InlineKeyboardButton(text="Тэг", callback_data="tags")],
+        [InlineKeyboardButton(text="Текст", callback_data="text")],
+])
 
 
 def profile(text: str | list):
