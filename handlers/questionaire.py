@@ -8,10 +8,14 @@ from keyboards import kb
 from keyboards.kb import profile
 from keyboards.kb import created_request_inline
 
+from data.database import WorkDB
+
 from rich.console import Console
 
 router = Router()
 console = Console()
+
+db = WorkDB("./data/main.db")
 
 @router.message(F.text.lower() == "создать запрос")
 async def fill_profile(message: Message, state: FSMContext):
@@ -48,23 +52,31 @@ async def fill_profile(message: Message, state: FSMContext):
     request_title = data.get("title")
     request_text = data.get("text")
     request_tags = data.get("tags")
-    await message.answer(
-        f"Вот твой запрос:\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \nТеги: <code>{request_tags}</code>", 
-        reply_markup=kb.created_request_inline
-    )
-
+    try: 
+        db.setRequest(f"{message.from_user.id}", f"{message.from_user.full_name}", f"@{message.from_user.username}", f"{request_title}", f"{request_text}", f"{request_tags}")
+        await message.answer(
+            f"Ваш запрос успешно отправлен:\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \n    Теги: <code>{request_tags}</code>", 
+            reply_markup=kb.created_request_inline
+        )
+    except Exception:
+        console.print_exception(show_locals=True)
+    
+    
 
 @router.callback_query(F.data == "change")
 async def change(callback: CallbackQuery):
-    await callback.answer("1")
-    await callback.message.edit_text(text="Выберите изменение", reply_markup=kb.change_request_inline)
+    await callback.answer("")
+    await callback.message.edit_text(text="Выберите изменение", reply_markup=kb.change_request_inline("фуафыа"))
 
 
-@router.callback_query(F.data == "title")
-async def change(callback: CallbackQuery):
-    print(callback.data)
-    await callback.answer("1")
-    await callback.message.edit_text(text="Введите новую тему")
+@router.message(Form.request_title)
+async def change(message: Message, state: FSMContext):
+    print("asd")
+    await state.update_data(title=message.text)
+    data = await state.get_data()
+    await state.clear()
+    print("Все норм")
+    print(data)
 
 
 @router.callback_query(F.data == "tags")
@@ -79,6 +91,9 @@ async def change(callback: CallbackQuery):
     await callback.message.edit_text(text="Введите новый текст")
 
 
+# редактирование 
+
+ 
 
 
 

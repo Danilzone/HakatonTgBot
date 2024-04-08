@@ -44,7 +44,7 @@ class WorkDB:
 
     # Отправка и получение 'запросов'  
 
-    def setRequest(self, user_id, user_name, user_dogname, request_title, request_text):
+    def setRequest(self, user_id, user_name, user_dogname, request_title, request_text, request_tags):
 
         self.user_id = user_id
         self.user_name = user_name
@@ -56,16 +56,14 @@ class WorkDB:
 
         self.request_title = request_title
         self.request_text = request_text
+        self.request_tags = request_tags
         
         # Проверка на то, есть ли такая статья уже
-
-        try:
-            self.c.execute('INSERT INTO `requests` ("user_id", "user_name", "user_dogname", "request_title", "request_text") VALUES (?, ?, ?, ?, ?)', (user_id, user_name, user_dogname, request_title, request_text,))
-            self.conn.commit()
-            print(f"Запрос [green bold]'{request_title}'[/green bold] добавлен успешно!")
+        self.c.execute('INSERT INTO `requests` ("user_id", "user_name", "user_dogname", "request_title", "request_text", "request_tags") VALUES (?, ?, ?, ?, ?, ?)', (user_id, user_name, user_dogname, request_title, request_text, request_tags,))
+        self.conn.commit()
+        print(f"Запрос [green bold]'{request_title}'[/green bold] добавлен успешно!")
         
-        except Exception:
-            console.print_exctption(show_locals=True)
+
 
 
     def getRequests(self, user_id):
@@ -86,11 +84,11 @@ class WorkDB:
         self.user_id = user_id
         self.request_id = request_id
         try:
-                request = self.c.execute(' SELECT "request_title", "request_text" FROM `requests` WHERE "id"= ? AND "user_id" = ? ',(request_id, user_id,)).fetchall()
-                self.conn.commit()
-                title = request[0][0]
-                text = request[0][1]
-                return title, text 
+            request = self.c.execute(' SELECT "request_title", "request_text" FROM `requests` WHERE "id"= ? AND "user_id" = ? ',(request_id, user_id,)).fetchall()
+            self.conn.commit()
+            title = request[0][0]
+            text = request[0][1]
+            return title, text 
         
         except Exception:
             console.print_exctption(show_locals=True) 
@@ -155,6 +153,7 @@ class WorkDB:
 # print(
 # print(db.getRequest("1270679070", 6)[1])
 # )
-# db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый")
+
 # db.setAnswer("2","12413223553","@aпвпы","s--впывп-")
 # db.deleteAnswer("2","1")
+# db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый", "AD, ADGF, WERG ")

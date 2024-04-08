@@ -52,7 +52,7 @@ answer = ReplyKeyboardMarkup(keyboard=[
 
 
 change_request_inline = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Тема", callback_data="title"), InlineKeyboardButton(text="Тэг", callback_data="tags")],
+        [InlineKeyboardButton(text="Тема", callback_data="change_title"), InlineKeyboardButton(text="Тэг", callback_data="tags")],
         [InlineKeyboardButton(text="Текст", callback_data="text")],
 ])
 
