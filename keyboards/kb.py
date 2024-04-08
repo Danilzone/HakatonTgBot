@@ -23,6 +23,7 @@ office = ReplyKeyboardMarkup(keyboard=[
                             input_field_placeholder="Выберите пунтк меню.")
 
 
+# ------------------------------------------------------------
 requests = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Создать запрос"), KeyboardButton(text="Редактировать запрос")], 
     [KeyboardButton(text="На главный экран")]
@@ -33,7 +34,14 @@ requests = ReplyKeyboardMarkup(keyboard=[
 interact_request = ReplyKeyboardMarkup(keyboard=[
         [KeyboardButton(text="Редактировать запрос"), KeyboardButton(text="Удалить запрос")],
         [KeyboardButton(text="На главный экран")]
+],
+                            resize_keyboard=True)
+
+created_request_inline = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Изменить", callback_data="изменить"), InlineKeyboardButton(text="Отправить", callback_data="отправить")],
+        [InlineKeyboardButton(text="Удалить", callback_data="удалить")],
 ])
+# -----------------------------------------------------------
 
 
 answer = ReplyKeyboardMarkup(keyboard=[
