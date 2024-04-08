@@ -108,6 +108,7 @@ class WorkDB:
 
         
         self.c.execute('UPDATE `requests` SET "request_title" = ?, "request_text" = ? WHERE id = ? AND user_id = ?', (request_id, user_id, request_title, request_text))
+        self.conn.commit()
     
     
     def deletRequest(self, user_id, request_id):
