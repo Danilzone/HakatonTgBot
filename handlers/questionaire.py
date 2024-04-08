@@ -19,6 +19,7 @@ async def fill_profile(message: Message, state: FSMContext):
         "Давай начнем!\nВведите тему вопроса",
     )
 
+
 @router.message(Form.request_title)
 async def fill_profile(message: Message, state: FSMContext):
     await state.update_data(title=message.text)
@@ -26,6 +27,7 @@ async def fill_profile(message: Message, state: FSMContext):
     await message.answer(
         "Хорошо!\nТеперь введи текст своего запроса",
     )
+
 
 @router.message(Form.request_text)
 async def fill_profile(message: Message, state: FSMContext):
@@ -48,5 +50,11 @@ async def fill_profile(message: Message, state: FSMContext):
         f"Вот твой запрос:\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \nТеги: <code>{request_tags}</code>", 
         reply_markup=kb.created_request_inline
     )
+
+
+@router.callback_query(F.data == "change")
+async def change(callback: CallbackQuery):
+    await callback.answer("Вы хотите изменить запрос")
+    await callback.message.answer("Что вы хотите изменить?")
 
     

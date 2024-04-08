@@ -15,6 +15,7 @@ router = Router()
 
 console = Console()
 
+
 @router.message(CommandStart())
 async def start(message : Message):
     await message.answer(f"Hi <b>{message.from_user.full_name}</b>", reply_markup=kb.main)
@@ -22,6 +23,7 @@ async def start(message : Message):
     # db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
     # db.setRequest(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username, "Майнинг", "Как в питоне сделать майнер?")
     # db.getRequests()
+
 
 @router.message(F.text.lower() == "на главный экран")
 async def cmd_refund(message: Message):
@@ -33,6 +35,7 @@ async def cmd_refund(message: Message):
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
                         reply_markup=kb.office)
+
 
 @router.message(F.text.lower() == "мои запросы")
 async def cmd_refund(message: Message):

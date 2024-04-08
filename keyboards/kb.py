@@ -7,6 +7,13 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
+creating_a_request = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Изменить", callback_data="change")],
+    [InlineKeyboardButton(text="Отправить", callback_data="send")],
+    [InlineKeyboardButton(text="Удалить", callback_data="remove")]
+])
+
+
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
     [KeyboardButton(text="Запросы"), KeyboardButton(text="Рейтинговая таблица")]
