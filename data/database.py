@@ -98,8 +98,7 @@ class WorkDB:
 
     # Редактирование существующего 'запроса' и его удаление
 
-    def editRequest(self, request_id, user_id, request_title, request_text):
-        self.request_id = request_id
+    def editRequest(self, user_id, request_title, request_text):
         self.user_id = user_id
 
         self.request_title = request_title
@@ -107,17 +106,44 @@ class WorkDB:
 
 
         
-        self.c.execute('UPDATE `requests` SET "request_title" = ?, "request_text" = ? WHERE id = ? AND user_id = ?', (request_id, user_id, request_title, request_text))
+        self.c.execute('UPDATE `requests` SET "request_title" = ?, "request_text" = ? WHERE id = ? AND user_id = ?', (request_title, request_text, user_id,))
         self.conn.commit()
     
     
-    def deletRequest(self, user_id, request_id):
+    def deleteRequest(self, user_id):
         self.user_id = user_id
-        self.request_id = request_id
         
         self.c.execute('DELETE FROM requests WHERE id = ? AND user_id = ?')
         self.conn.commit()
         
+        
+     # создание, редактирование и удаление ответов на запросы
+        
+    def setAnswer(self, request_id, user_id, user_dogname, answer_text):
+        self.request_id = request_id
+        self.user_id = user_id
+        self.user_dogname = user_dogname
+        self.answer_text = answer_text
+        try:
+            self.c.execute('INSERT INTO `answer` (`request_id`, `user_id`, `user_dogname`, `answer_text`) VALUES (?, ?, ?, ?)', (request_id, user_id, user_dogname, answer_text,))
+            self.conn.commit()
+        except Exception:
+            console.print_exctption(show_locals=True) 
+            
+    def deleteAnswer(self, answer_id, user_id):
+        self.user_id = user_id
+        self.answer_id = answer_id
+        
+        self.c.execute('DELETE FROM `answer` WHERE id = ? AND user_id = ?',(answer_id, user_id,))
+        self.conn.commit()
+    
+    def editAnswer(self, answer_id, user_id, answer_text):
+        self.answer_id = answer_id
+        self.user_id = user_id
+        self.answer_text = answer_text
+        
+        self.c.execute('UPDATE `answer` SET "answer_text" = ? WHERE id = ? AND user_id = ?',(answer_text, answer_id, user_id,))
+        self.conn.commit()
 
 
 
@@ -130,3 +156,5 @@ class WorkDB:
 # print(db.getRequest("1270679070", 6)[1])
 # )
 # db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый")
+# db.setAnswer("2","12413223553","@aпвпы","s--впывп-")
+# db.deleteAnswer("2","1")
