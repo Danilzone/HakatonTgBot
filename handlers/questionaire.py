@@ -1,90 +1,52 @@
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
 from utils.states import Form
+from keyboards import kb
 from keyboards.kb import profile
-from keyboards.kb import rmk
+from keyboards.kb import created_request_inline
 
 router = Router()
 
 
-@router.message(F.text == "Зарегистрироваться")
+@router.message(F.text.lower() == "создать запрос")
 async def fill_profile(message: Message, state: FSMContext):
-    await state.set_state(Form.name)
+    print("AOAOA")
+    await state.set_state(Form.request_title)
     await message.answer(
-        "Давай начнем, введи свое имя",
-        reply_markup=profile(message.from_user.first_name)
+        "Давай начнем!\nВведите тему вопроса",
+    )
+
+@router.message(Form.request_title)
+async def fill_profile(message: Message, state: FSMContext):
+    await state.update_data(title=message.text)
+    await state.set_state(Form.request_text)
+    await message.answer(
+        "Хорошо!\nТеперь введи текст своего запроса",
+    )
+
+@router.message(Form.request_text)
+async def fill_profile(message: Message, state: FSMContext):
+    await state.update_data(text=message.text)
+    await state.set_state(Form.request_tags)
+    await message.answer(
+        "Осталось немного.\nУкажи теги для своего запроса\n \nПример: <code>Программирование, Языки, Проблема</code>",
     )
 
 
-@router.message(Form.name)
-async def fill_name(message: Message, state: FSMContext):
-    await state.update_data(name=message.text)
-    await state.set_state(Form.age)
-    await message.answer(
-        "Отлично, теперь введи свой возраст",
-        reply_markup=rmk
-    )
-
-
-@router.message(Form.age)
-async def fill_name(message: Message, state: FSMContext):
-    if message.text.isdigit():
-        await state.update_data(age=message.text)
-        await state.set_state(Form.sex)
-        await message.answer(
-            "Теперь давай определимся с полом",
-            reply_markup=profile(["Парень", "Девушка"])
-        )
-    else:
-        await message.answer("Введите число, еще раз!")
-
-
-@router.message(Form.sex, F.text.casefold().in_(["парень", "девушка"]))
-async def fill_sex(message: Message, state: FSMContext):
-    await state.update_data(sex=message.text)
-    await state.set_state(Form.about)
-    await message.answer(
-        "Расскажи о себе",
-        reply_markup=rmk
-    )
-
-
-@router.message(Form.sex)
-async def incorrect_form_sex(message: Message, state: FSMContext):
-    await message.answer("Нажми на кнопку")
-
-
-@router.message(Form.about)
-async def fill_about(message: Message, state: FSMContext):
-    if len(message.text) < 5:
-        await message.answer("Введите что-нибудь поинтересней")
-    else:
-        await state.update_data(about=message.text)
-        await state.set_state(Form.photo)
-        await message.answer("Теперь отправьте свое фото")
-
-
-@router.message(Form.photo, F.photo)
-async def form_photo(message: Message, state: FSMContext):
-    photo_file_id = message.photo[-1].file_id
+@router.message(Form.request_tags)
+async def fill_profile(message: Message, state: FSMContext):
+    await state.update_data(tags=message.text)
     data = await state.get_data()
     await state.clear()
-
-    formatted_text = []
-    [
-        formatted_text.append(f"{key}: {value}")
-        for key, value in data.items()
-    ]
-
-    await message.answer_photo(
-        photo_file_id,
-        "\n".join(formatted_text)
+    request_title = data.get("title")
+    request_text = data.get("text")
+    request_tags = data.get("tags")
+    await message.answer(
+        f"Вот твой запрос:\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \nТеги: <code>{request_tags}</code>", 
+        reply_markup=kb.created_request_inline
     )
 
-
-@router.message(Form.photo, ~F.photo)
-async def incorrect_form_photo(message: Message, state: FSMContext):
-    await message.answer("Отправьте фото!")
+    
