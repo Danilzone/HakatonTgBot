@@ -119,20 +119,7 @@ class WorkDB:
         
 
 
-    def deletRequest(self, request_id, user_id):
-        self.request_id = request_id
-        self.user_id = user_id
 
-        
-        self.c.execute('UPDATE `requests` SET "request_title" = ?, "request_text" = ? WHERE id = ? AND user_id = ?', (request_id, user_id, request_title, request_text))
-    
-    
-    def deletRequest(self, user_id, request_id):
-        self.user_id = user_id
-        self.request_id = request_id
-        
-        self.c.execute('DELETE FROM requests WHERE id = ? AND user_id = ?')
-        self.conn.commit()
         
 
 # ТЕСТИРОВАНИЕ
