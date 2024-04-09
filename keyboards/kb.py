@@ -82,12 +82,12 @@ def interact_request(text: str | list):
     return builder.as_markup()
 
 
-def edit_request_inline(text: str | list):
+def edit_request_inline(text):
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="Заголовок", callback_data=f"TITLE {text}"),
-        InlineKeyboardButton(text="Текст", callback_data=f"TEXT {text}"),
-        InlineKeyboardButton(text="Тэги", callback_data=f"TAGS {text}"), width=2
+        InlineKeyboardButton(text="Заголовок", callback_data=f"TITLE {text[0]}"),
+        InlineKeyboardButton(text="Текст", callback_data=f"TEXT {text[0]}"),
+        InlineKeyboardButton(text="Тэги", callback_data=f"TAGS {text[0]}"), width=2
     )
     
     return builder.as_markup()

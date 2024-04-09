@@ -51,14 +51,6 @@ async def cmd_refund(message: Message):
         console.print_exception(show_locals=True)
 
 
-@router.message(F.text.lower() == "редактировать запрос")
-async def cmd_refund(message: Message):
-    try:
-       await message.answer("Что вы хотите отредактировать?")
-    except Exception:
-        console.print_exception(show_locals=True)
-
-
 @router.message(F.text.lower() == "запросы")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
@@ -96,36 +88,35 @@ async def delete_my_requests_callback(callback: CallbackQuery):
 
 @router.callback_query(F.data[:5] == "EDIT ")
 async def edit_my_requests_callback(callback: CallbackQuery):
-    print(callback.data)
+    data = ast.literal_eval(callback.data[5:])
     await callback.answer(" ")
-    await callback.message.answer(f"Что хотите отредактировать?", reply_markup=kb.edit_request_inline(callback.data[5:]))
+    print(type(data))
+    await callback.message.edit_text(f"Что хотите отредактировать?", reply_markup=kb.edit_request_inline( data ))
 
 
-# @router.message()
-# async def cmds(message: Message):
-#     msg = message.text.lower()
-#     if msg == "на главный экран":
-#          await message.reply(f"выберите один пункт",
-#                      reply_markup=kb.main)
+@router.callback_query(F.data[:6] == "TITLE ")
+async def edit_my_requests_callback(callback: CallbackQuery):
+    data = ast.literal_eval(callback.data[6:])
+    await callback.answer(" ")
+  
+    await callback.message.edit_text(f"Введите новый заголовог")
 
-#     elif msg == "личный кабинет":
-#         await message.reply(f"выберите один пункт",
-#                             reply_markup=kb.office)    
 
-#     elif msg == "запросы":
-#         await message.reply(f"выберите один пункт",
-#                           reply_markup=kb.requests)
-
-#     elif msg == "рейтинговая таблица":
-#         await message.reply(f"выберите один пункт",
-#                             reply_markup=kb.answer)
+@router.callback_query(F.data[:5] == "TEXT ")
+async def edit_my_requests_callback(callback: CallbackQuery):
+    data = ast.literal_eval(callback.data[5:])
+    await callback.answer(" ")
+    print(data)
+    await callback.message.edit_text(f"Введите новый текст")
     
-#     elif msg == "мои запросы":
-#         try:
-#             res_db = db.getRequests(message.from_user.id)[1]
-#             await message.reply(f"выберите свой запрос", reply_markup=my_requests(res_db) )
-#         except Exception:
-#             console.print_exception(show_locals=True)
+
+
+@router.callback_query(F.data[:5] == "TAGS ")
+async def edit_my_requests_callback(callback: CallbackQuery):
+    data = ast.literal_eval(callback.data[5:])
+    await callback.answer(" ")
+    
+    await callback.message.edit_text(f"Введите новые теги")
 
 
 """
