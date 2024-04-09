@@ -5,5 +5,22 @@ class Form(StatesGroup):
     request_title = State()
     request_text = State()
     request_tags = State()
+    request_id = State()
     # about = State()
     # photo = State()
+
+
+class GetReqEdit(StatesGroup):
+    request_main = State()
+
+
+class NewTitle(StatesGroup):
+    new_title = State()
+
+
+class NewText(StatesGroup):
+    new_text = State()
+
+
+class NewTag(StatesGroup):
+    new_tag = State()
