@@ -7,3 +7,6 @@ class Form(StatesGroup):
     request_tags = State()
     # about = State()
     # photo = State()
+
+class GetReqEdit(StatesGroup):
+    request_main = State()

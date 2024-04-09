@@ -86,6 +86,10 @@ class WorkDB:
         try:
             request = self.c.execute(' SELECT "request_title", "request_text" FROM `requests` WHERE "id"= ? AND "user_id" = ? ',(request_id, user_id,)).fetchall()
             self.conn.commit()
+            if not request:
+                print("[red bold]В БД нет такой записи")
+                return None
+            
             title = request[0][0]
             text = request[0][1]
             return title, text 
@@ -108,10 +112,11 @@ class WorkDB:
         self.conn.commit()
     
     
-    def deleteRequest(self, user_id):
+    def deleteRequest(self, request_id, user_id):
         self.user_id = user_id
+        self.request_id = request_id
         
-        self.c.execute('DELETE FROM requests WHERE id = ? AND user_id = ?')
+        self.c.execute('DELETE FROM `requests` WHERE id = ? AND user_id = ?', (request_id, user_id,))
         self.conn.commit()
         
         
@@ -150,10 +155,7 @@ class WorkDB:
 # ТЕСТИРОВАНИЕ
 
 # db = WorkDB("main.db")
-# print(
-# print(db.getRequest("1270679070", 6)[1])
-# )
 
-# db.setAnswer("2","12413223553","@aпвпы","s--впывп-")
-# db.deleteAnswer("2","1")
-# db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый", "AD, ADGF, WERG ")
+# db.setRequest("9009", "Asd", "@Asd", "qwert", "lorem lorem lorem lorem", "Tag tag tag")
+# db.deleteRequest("8", "9009")
+# db.getRequest("9009", "8")

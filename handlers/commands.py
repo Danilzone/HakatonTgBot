@@ -1,6 +1,11 @@
+
+import ast
 from aiogram  import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandObject, CommandStart
+
+from aiogram.fsm.context import FSMContext
+from utils.states import GetReqEdit
 
 from keyboards import kb
 from rich import print
@@ -46,10 +51,18 @@ async def cmd_refund(message: Message):
         console.print_exception(show_locals=True)
 
 
+@router.message(F.text.lower() == "редактировать запрос")
+async def cmd_refund(message: Message):
+    try:
+       await message.answer("Что вы хотите отредактировать?")
+    except Exception:
+        console.print_exception(show_locals=True)
+
+
 @router.message(F.text.lower() == "запросы")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
-                        reply_markup=kb.requests)
+                        reply_markup=kb.requests("qwqfwqfqwfqwfqw"))
 
 
 @router.message(F.text.lower() == "рейтинговая таблица")
@@ -61,11 +74,31 @@ async def cmd_refund(message: Message):
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'
 
 @router.callback_query(F.data[:4] == "REQ ")
-async def callback(call: CallbackQuery):
-    print(call.data[4:])
-    request = db.getRequest(call.from_user.id, call.data[4:])
+async def my_requests_callback(callback: CallbackQuery):
     await callback.answer(" ")
-    await call.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request)
+    request = db.getRequest(callback.from_user.id, callback.data[4:]) # Если в БД есть такой запрос , то в request есть данные  
+    if request == None:                                               # ИНАЧЕ он равен None - это значит что в БД нет такого запроса и он выводит сообщение о том что не найдено запроса
+        print("Ой")
+        await callback.message.answer("Простите, но такого запросо не найденно :( ") # Можем отсюда это убрать, и бот будет молчать
+    else:
+        await callback.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request([callback.data[4:], callback.from_user.id]))
+
+
+@router.callback_query(F.data[:4] == "DEL ")
+async def delete_my_requests_callback(callback: CallbackQuery):
+    await callback.message.delete()
+    
+    data =  ast.literal_eval(callback.data[4:])
+    await callback.answer(" ")
+    db.deleteRequest(data[0], callback.from_user.id)
+    await callback.message.answer("Вы удалили запрос")
+
+
+@router.callback_query(F.data[:5] == "EDIT ")
+async def edit_my_requests_callback(callback: CallbackQuery):
+    print(callback.data)
+    await callback.answer(" ")
+    await callback.message.answer(f"Что хотите отредактировать?", reply_markup=kb.edit_request_inline(callback.data[5:]))
 
 
 # @router.message()
