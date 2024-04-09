@@ -103,12 +103,12 @@ async def edit_my_requests_callback(callback: CallbackQuery):
     await callback.message.edit_text(f"Введите новый заголовог")
 
 
-@router.callback_query(F.data[:5] == "TEXT ", Form.request_id)
+@router.callback_query(F.data[:5] == "TEXT ")
 async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
     data = ast.literal_eval(callback.data[5:])
     await callback.answer(" ")
-    print(data)
-    await state.set_state(Form.request_text, data)
+    await state.set_state(Form.request_text)
+    await state.update_data(id=data)
     await callback.message.edit_text(f"Введите новый текст")
 
 
@@ -119,11 +119,12 @@ async def new_text(message: Message, state: FSMContext):
     print(data)
     await state.clear()
     request_text = data.get("text")
-    #try:
-    db.editRequestText(f"{message.from_user.id}", f"{request_id}")
+    request_ID = data.get("id")
+    print(request_text, request_ID)
+   
+    db.editRequestText(f"{message.from_user.id}", f"{request_ID}", f"{request_text}")
     await message.answer("Текст успешно обновлен")
-    #except Exception:
-        #.print_exception(show_locals=True)
+
     
 
 @router.callback_query(F.data[:5] == "TAGS ")
