@@ -6,7 +6,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 
 from aiogram.fsm.context import FSMContext
 from utils.states import GetReqEdit
-from utils.states import Form
+from utils.states import Form, Search
 
 from keyboards import kb
 from rich import print
@@ -52,16 +52,34 @@ async def cmd_refund(message: Message):
         console.print_exception(show_locals=True)
 
 
-@router.message(F.text.lower() == "запросы")
+
+@router.message(F.text.lower() == "поиск🔎")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
-                        reply_markup=kb.requests("qwqfwqfqwfqwfqw"))
+                        reply_markup=kb.search)
 
+
+@router.message(F.text.lower() == "поиск по словам")
+async def cmd_refund(message: Message, state: FSMContext):
+    await state.set_state(Search.text)
+    await message.reply(f"Введите слова для поиска запросов")
+
+
+@router.message(Search.text)
+async def find_text(message: Message, state: FSMContext):
+
+        await state.update_data(text=message.text)
+        data = await state.get_data()
+        text = data.get("text")
+        await message.reply(f"Производится поиск {text}")
+        
+# 
 
 @router.message(F.text.lower() == "рейтинговая таблица")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
                         reply_markup=kb.answer)
+
 
 
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'

@@ -175,14 +175,19 @@ class WorkDB:
         self.conn.commit()
 
 
-
+    def searchRequestText(self, find_text):
+        self.find_text = find_text
+        res = self.c.execute(f'SELECT * FROM `requests` WHERE "request_text" LIKE "%{find_text}%" COLLATE NOCASE ').fetchall()
+        return res
         
 
 # ТЕСТИРОВАНИЕ
 
-#db = WorkDB("main.db")
+# db = WorkDB("main.db")
 
 # db.setRequest("9009", "Asd", "@Asd", "qwert", "lorem lorem lorem lorem", "Tag tag tag")
 # db.deleteRequest("8", "9009")
 # db.getRequest("9009", "8")
 # db.editRequestTags("9009", "9", "ew wdsf sgf")
+# print(db.searchRequestText("Fd"))
+

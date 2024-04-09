@@ -10,6 +10,16 @@ class Form(StatesGroup):
     # photo = State()
 
 
+class Create(StatesGroup):
+    request_title = State()
+    request_text = State()
+    request_tags = State()
+    request_id = State()
+
+
+class Search(StatesGroup):
+    text = State()
+
 class GetReqEdit(StatesGroup):
     request_main = State()
 
