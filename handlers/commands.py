@@ -6,6 +6,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 
 from aiogram.fsm.context import FSMContext
 from utils.states import GetReqEdit
+from utils.states import Form
 
 from keyboards import kb
 from rich import print
@@ -102,14 +103,28 @@ async def edit_my_requests_callback(callback: CallbackQuery):
     await callback.message.edit_text(f"Введите новый заголовог")
 
 
-@router.callback_query(F.data[:5] == "TEXT ")
-async def edit_my_requests_callback(callback: CallbackQuery):
+@router.callback_query(F.data[:5] == "TEXT ", Form.request_id)
+async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
     data = ast.literal_eval(callback.data[5:])
     await callback.answer(" ")
     print(data)
+    await state.set_state(Form.request_text, data)
     await callback.message.edit_text(f"Введите новый текст")
-    
 
+
+@router.message(Form.request_text)
+async def new_text(message: Message, state: FSMContext):
+    await state.update_data(text=message.text)
+    data = await state.get_data()
+    print(data)
+    await state.clear()
+    request_text = data.get("text")
+    #try:
+    db.editRequestText(f"{message.from_user.id}", f"{request_id}")
+    await message.answer("Текст успешно обновлен")
+    #except Exception:
+        #.print_exception(show_locals=True)
+    
 
 @router.callback_query(F.data[:5] == "TAGS ")
 async def edit_my_requests_callback(callback: CallbackQuery):

@@ -180,7 +180,7 @@ class WorkDB:
 
 # ТЕСТИРОВАНИЕ
 
-db = WorkDB("main.db")
+#db = WorkDB("main.db")
 
 # db.setRequest("9009", "Asd", "@Asd", "qwert", "lorem lorem lorem lorem", "Tag tag tag")
 # db.deleteRequest("8", "9009")

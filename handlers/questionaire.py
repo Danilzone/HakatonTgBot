@@ -53,7 +53,7 @@ async def fill_profile(message: Message, state: FSMContext):
     request_text = data.get("text")
     request_tags = data.get("tags")
     try: 
-        db.setRequest(f"{message.from_user.id}", f"{message.from_user.full_name}", f"@{message.from_user.username}", f"{request_title}", f"{request_text}", f"{request_tags}")
+        db.setRequest(f"{message.from_user.id}", f"{message.from_user.full_name}", f"@{message.from_user.username}", f"{request_text}")
         await message.answer(
             f"<b>Ваш запрос успешно отправлен✅:</b>\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \n    Теги: <code>{request_tags}</code>", 
         )
