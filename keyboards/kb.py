@@ -28,13 +28,14 @@ requests = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Создать запрос"), KeyboardButton(text="Редактировать запрос")], 
     [KeyboardButton(text="На главный экран")]
 ],
-                            resize_keyboard=True,)
+                            resize_keyboard=True,
+                            input_field_placeholder="Выберите пунтк меню.")
 
-# interact_request = ReplyKeyboardMarkup(keyboard=[
-#         [KeyboardButton(text="Редактировать запрос"), KeyboardButton(text="Удалить запрос")],
-#         [KeyboardButton(text="На главный экран")]
-# ],
-                            # resize_keyboard=True)
+interact_request = ReplyKeyboardMarkup(keyboard=[
+        [KeyboardButton(text="Редактировать запрос"), KeyboardButton(text="Удалить запрос")],
+        [KeyboardButton(text="На главный экран")]
+],
+                            resize_keyboard=True)
 
 created_request_inline = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Изменить", callback_data="change"), InlineKeyboardButton(text="Отправить", callback_data="send")],
@@ -72,24 +73,5 @@ def my_requests(text: str |list):
     [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"REQ {txt[0]}")) for txt in text ]
     return builder.as_markup()
 
-
-def interact_request(text: str | list):
-    builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(text="Редактировать", callback_data=f"EDIT {text}"),
-        InlineKeyboardButton(text="Удалить", callback_data=f"DEL {text}"),
-    )
-    return builder.as_markup()
-
-
-def edit_request_inline(text):
-    builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(text="Заголовок", callback_data=f"TITLE {text[0]}"),
-        InlineKeyboardButton(text="Текст", callback_data=f"TEXT {text[0]}"),
-        InlineKeyboardButton(text="Тэги", callback_data=f"TAGS {text[0]}"), width=2
-    )
-    
-    return builder.as_markup()
 
 rmk = ReplyKeyboardRemove()

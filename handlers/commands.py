@@ -1,12 +1,6 @@
-
-import ast
 from aiogram  import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandObject, CommandStart
-
-from aiogram.fsm.context import FSMContext
-from utils.states import GetReqEdit
-from utils.states import Form
 
 from keyboards import kb
 from rich import print
@@ -55,7 +49,7 @@ async def cmd_refund(message: Message):
 @router.message(F.text.lower() == "запросы")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
-                        reply_markup=kb.requests("qwqfwqfqwfqwfqw"))
+                        reply_markup=kb.requests)
 
 
 @router.message(F.text.lower() == "рейтинговая таблица")
@@ -67,99 +61,37 @@ async def cmd_refund(message: Message):
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'
 
 @router.callback_query(F.data[:4] == "REQ ")
-async def my_requests_callback(callback: CallbackQuery):
-    await callback.answer(" ")
-    request = db.getRequest(callback.from_user.id, callback.data[4:]) # Если в БД есть такой запрос , то в request есть данные  
-    if request == None:                                               # ИНАЧЕ он равен None - это значит что в БД нет такого запроса и он выводит сообщение о том что не найдено запроса
-        print("Ой")
-        await callback.message.answer("Простите, но такого запросо не найденно :( ") # Можем отсюда это убрать, и бот будет молчать
-    else:
-        await callback.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request([callback.data[4:], callback.from_user.id]))
+async def callback(call: CallbackQuery):
+    print(call.data[4:])
+    request = db.getRequest(call.from_user.id, call.data[4:])
+    await call.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request)
 
 
-@router.callback_query(F.data[:4] == "DEL ")
-async def delete_my_requests_callback(callback: CallbackQuery):
-    await callback.message.delete()
+# @router.message()
+# async def cmds(message: Message):
+#     msg = message.text.lower()
+#     if msg == "на главный экран":
+#          await message.reply(f"выберите один пункт",
+#                      reply_markup=kb.main)
+
+#     elif msg == "личный кабинет":
+#         await message.reply(f"выберите один пункт",
+#                             reply_markup=kb.office)    
+
+#     elif msg == "запросы":
+#         await message.reply(f"выберите один пункт",
+#                           reply_markup=kb.requests)
+
+#     elif msg == "рейтинговая таблица":
+#         await message.reply(f"выберите один пункт",
+#                             reply_markup=kb.answer)
     
-    data =  ast.literal_eval(callback.data[4:])
-    await callback.answer(" ")
-    db.deleteRequest(data[0], callback.from_user.id)
-    await callback.message.answer("Вы удалили запрос")
-
-
-@router.callback_query(F.data[:5] == "EDIT ")
-async def edit_my_requests_callback(callback: CallbackQuery):
-    data = ast.literal_eval(callback.data[5:])
-    await callback.answer(" ")
-    print(type(data))
-    await callback.message.edit_text(f"Что хотите отредактировать?", reply_markup=kb.edit_request_inline( data ))
-
-
-@router.callback_query(F.data[:6] == "TITLE ")
-async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
-    data = ast.literal_eval(callback.data[6:])
-    await callback.answer(" ")
-    await state.set_state(Form.request_title)
-    await state.update_data(id=data)
-    await callback.message.edit_text(f"Введите новый заголовог")
-
-
-@router.message(Form.request_title)
-async def new_title(message: Message, state: FSMContext):
-    await state.update_data(title=message.text)
-    data = await state.get_data()
-    print(data)
-    await state.clear()
-    request_title = data.get("title")
-    request_ID = data.get("id")
-    print(request_title, request_ID)
-    db.editRequestTitle(f"{message.from_user.id}", f"{request_ID}", f"{request_title}")
-    await message.answer("Тема успешно обновлена")
-
-
-@router.callback_query(F.data[:5] == "TEXT ")
-async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
-    data = ast.literal_eval(callback.data[5:])
-    await callback.answer(" ")
-    await state.set_state(Form.request_text)
-    await state.update_data(id=data)
-    await callback.message.edit_text(f"Введите новый текст")
-
-
-@router.message(Form.request_text)
-async def new_text(message: Message, state: FSMContext):
-    await state.update_data(text=message.text)
-    data = await state.get_data()
-    print(data)
-    await state.clear()
-    request_text = data.get("text")
-    request_ID = data.get("id")
-    print(request_text, request_ID)
-    db.editRequestText(f"{message.from_user.id}", f"{request_ID}", f"{request_text}")
-    await message.answer("Текст успешно обновлен")
-
-    
-
-@router.callback_query(F.data[:5] == "TAGS ")
-async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
-    data = ast.literal_eval(callback.data[5:])
-    await callback.answer(" ")
-    await state.set_state(Form.request_tags)
-    await state.update_data(id=data)
-    await callback.message.edit_text(f"Введите новые теги")
-
-
-@router.message(Form.request_tags)
-async def new_tags(message: Message, state: FSMContext):
-    await state.update_data(tags=message.text)
-    data = await state.get_data()
-    print(data)
-    await state.clear()
-    request_tags = data.get("tags")
-    request_ID = data.get("id")
-    print(request_tags, request_ID)
-    db.editRequestTags(f"{message.from_user.id}", f"{request_ID}", f"{request_tags}")
-    await message.answer("Тэги успешно обновлены")
+#     elif msg == "мои запросы":
+#         try:
+#             res_db = db.getRequests(message.from_user.id)[1]
+#             await message.reply(f"выберите свой запрос", reply_markup=my_requests(res_db) )
+#         except Exception:
+#             console.print_exception(show_locals=True)
 
 
 """

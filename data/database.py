@@ -84,16 +84,11 @@ class WorkDB:
         self.user_id = user_id
         self.request_id = request_id
         try:
-            request = self.c.execute(' SELECT "request_title", "request_text", "request_tags" FROM `requests` WHERE "id"= ? AND "user_id" = ? ',(request_id, user_id,)).fetchall()
+            request = self.c.execute(' SELECT "request_title", "request_text" FROM `requests` WHERE "id"= ? AND "user_id" = ? ',(request_id, user_id,)).fetchall()
             self.conn.commit()
-            if not request:
-                print("[red bold]В БД нет такой записи")
-                return None
-            
             title = request[0][0]
             text = request[0][1]
-            tags = request[0][2]
-            return title, text, tags 
+            return title, text 
         
         except Exception:
             console.print_exctption(show_locals=True) 
@@ -107,42 +102,16 @@ class WorkDB:
         self.request_title = request_title
         self.request_text = request_text
 
+
+        
         self.c.execute('UPDATE `requests` SET "request_title" = ?, "request_text" = ? WHERE id = ? AND user_id = ?', (request_title, request_text, user_id,))
         self.conn.commit()
-
-
-    def editRequestTitle(self, user_id, request_id, request_title):
-        self.user_id = user_id
-        self.user_id = request_id
-        self.request_title = request_title
-
-        self.c.execute('UPDATE `requests` SET "request_title" = ? WHERE id = ? AND user_id = ?', (request_title, request_id, user_id,))
-        self.conn.commit()
-
-
-    def editRequestText(self, user_id, request_id, request_text):
-        self.user_id = user_id
-        self.user_id = request_id
-        self.request_text = request_text
-
-        self.c.execute('UPDATE `requests` SET "request_text" = ? WHERE id = ? AND user_id = ?', (request_text, request_id, user_id,))
-        self.conn.commit()
-
-
-    def editRequestTags(self, user_id, request_id, request_tags):
-        self.user_id = user_id
-        self.user_id = request_id
-        self.request_tags = request_tags
-
-        self.c.execute('UPDATE `requests` SET "request_tags" = ? WHERE id = ? AND user_id = ?', (request_tags, request_id, user_id,))
-        self.conn.commit()
     
     
-    def deleteRequest(self, request_id, user_id):
+    def deleteRequest(self, user_id):
         self.user_id = user_id
-        self.request_id = request_id
         
-        self.c.execute('DELETE FROM `requests` WHERE id = ? AND user_id = ?', (request_id, user_id,))
+        self.c.execute('DELETE FROM requests WHERE id = ? AND user_id = ?')
         self.conn.commit()
         
         
@@ -180,9 +149,11 @@ class WorkDB:
 
 # ТЕСТИРОВАНИЕ
 
-#db = WorkDB("main.db")
+# db = WorkDB("main.db")
+# print(
+# print(db.getRequest("1270679070", 6)[1])
+# )
 
-# db.setRequest("9009", "Asd", "@Asd", "qwert", "lorem lorem lorem lorem", "Tag tag tag")
-# db.deleteRequest("8", "9009")
-# db.getRequest("9009", "8")
-# db.editRequestTags("9009", "9", "ew wdsf sgf")
+# db.setAnswer("2","12413223553","@aпвпы","s--впывп-")
+# db.deleteAnswer("2","1")
+# db.setRequest("1270679070", "D_123", "@D_123UwU", "Дота", "текмт текстовый", "AD, ADGF, WERG ")
