@@ -64,7 +64,6 @@ async def cmd_refund(message: Message):
 async def callback(call: CallbackQuery):
     print(call.data[4:])
     request = db.getRequest(call.from_user.id, call.data[4:])
-    await callback.answer(" ")
     await call.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request)
 
 
