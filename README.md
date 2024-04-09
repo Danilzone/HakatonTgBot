@@ -25,7 +25,7 @@
 eo;rjhbg;eiorbgekr;jgbeikrgjb
 
 
-rgr[psdl[gsd]]
+rgr[psdl[gsd]
 пырШПврг
 
 
