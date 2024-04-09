@@ -96,11 +96,25 @@ async def edit_my_requests_callback(callback: CallbackQuery):
 
 
 @router.callback_query(F.data[:6] == "TITLE ")
-async def edit_my_requests_callback(callback: CallbackQuery):
+async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
     data = ast.literal_eval(callback.data[6:])
     await callback.answer(" ")
-  
+    await state.set_state(Form.request_title)
+    await state.update_data(id=data)
     await callback.message.edit_text(f"Введите новый заголовог")
+
+
+@router.message(Form.request_title)
+async def new_title(message: Message, state: FSMContext):
+    await state.update_data(title=message.text)
+    data = await state.get_data()
+    print(data)
+    await state.clear()
+    request_title = data.get("title")
+    request_ID = data.get("id")
+    print(request_title, request_ID)
+    db.editRequestTitle(f"{message.from_user.id}", f"{request_ID}", f"{request_title}")
+    await message.answer("Тема успешно обновлена")
 
 
 @router.callback_query(F.data[:5] == "TEXT ")
@@ -121,18 +135,31 @@ async def new_text(message: Message, state: FSMContext):
     request_text = data.get("text")
     request_ID = data.get("id")
     print(request_text, request_ID)
-   
     db.editRequestText(f"{message.from_user.id}", f"{request_ID}", f"{request_text}")
     await message.answer("Текст успешно обновлен")
 
     
 
 @router.callback_query(F.data[:5] == "TAGS ")
-async def edit_my_requests_callback(callback: CallbackQuery):
+async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
     data = ast.literal_eval(callback.data[5:])
     await callback.answer(" ")
-    
+    await state.set_state(Form.request_tags)
+    await state.update_data(id=data)
     await callback.message.edit_text(f"Введите новые теги")
+
+
+@router.message(Form.request_tags)
+async def new_tags(message: Message, state: FSMContext):
+    await state.update_data(tags=message.text)
+    data = await state.get_data()
+    print(data)
+    await state.clear()
+    request_tags = data.get("tags")
+    request_ID = data.get("id")
+    print(request_tags, request_ID)
+    db.editRequestTags(f"{message.from_user.id}", f"{request_ID}", f"{request_tags}")
+    await message.answer("Тэги успешно обновлены")
 
 
 """
