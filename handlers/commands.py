@@ -6,7 +6,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 
 from aiogram.fsm.context import FSMContext
 from utils.states import GetReqEdit
-from utils.states import Form, Search
+from utils.states import Form, Search, SetAnswer
 
 from keyboards import kb
 from rich import print
@@ -204,9 +204,24 @@ async def other_request_watch(callback: CallbackQuery):
     res = db.getRequestById(data)
     print(res)
     try:
-        await callback.message.edit_text(f"❓ <u>Запрос от</u> @{res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer("fas"))
+        await callback.message.edit_text(f"❓ <u>Запрос от</u> @{res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer(res))
     except Exception:
         console.print_exception(show_locals=True)
+
+
+@router.callback_query(F.data[:9] == "S_ANSWER ")
+async def other_request_set(callback: CallbackQuery, state: FSMContext):    
+    await callback.answer(" ")
+    await state.set_state(SetAnswer.text)
+
+    await callback.message.reply(f"Пишите ответ")
+    
+@router.message(SetAnswer.text)
+async def other_request_set(message: Message, state: FSMContext):
+    await state.update_data(text=message.text)
+    data = await state.get_data()
+    text = data.get("text")
+    print(f"Коммент : {text}")
 
 """
 Работа с БД

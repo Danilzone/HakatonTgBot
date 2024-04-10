@@ -86,15 +86,18 @@ def interact_request(text: str | list):
 
 def set_answer(text: str | list):
     builder = InlineKeyboardBuilder()
+    print("kb 89 \n \n \n")
+    print(text)
     builder.row(
-        InlineKeyboardButton(text="Ответить", callback_data=f"ANSWER"),
-        InlineKeyboardButton(text="Посмотретьт ответы", callback_data=f"W_ANSWER"),
+        InlineKeyboardButton(text="Ответить", callback_data=f"S_ANSWER "),
+        InlineKeyboardButton(text="Посмотретьт ответы", callback_data=f"W_ANSWER "),
     )
     return builder.adjust(2).as_markup()
 
 
 def edit_request_inline(text):
     builder = InlineKeyboardBuilder()
+    print(text)
     builder.row(
         InlineKeyboardButton(text="Заголовок", callback_data=f"TITLE {text[0]}"),
         InlineKeyboardButton(text="Текст", callback_data=f"TEXT {text[0]}"),

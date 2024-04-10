@@ -179,6 +179,8 @@ class WorkDB:
         except Exception:
             console.print_exception(show_locals=True) 
             
+    # def getAnswers(self, request_id ):            
+
     def deleteAnswer(self, answer_id, user_id):
         self.user_id = user_id
         self.answer_id = answer_id
