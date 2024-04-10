@@ -59,7 +59,7 @@ class WorkDB:
         self.request_tags = request_tags
         
         # Проверка на то, есть ли такая статья уже
-        self.c.execute('INSERT INTO `requests` ("user_id", "user_name", "user_dogname", "request_title", "request_text", "request_tags") VALUES (?, ?, ?, ?, ?, ?)', (user_id, user_name, user_dogname, request_title, request_text, request_tags,))
+        self.c.execute('INSERT INTO `requests` ("user_id", "user_name", "user_dogname", "request_title", "request_text", "request_lower_text", "request_lower_title","request_tags") VALUES (?, ?, ?, ?, ?, ?, ?, ?)', (user_id, user_name, user_dogname, request_title, request_text, request_text.lower(), request_title.lower(), request_tags,))
         self.conn.commit()
         print(f"Запрос [green bold]'{request_title}'[/green bold] добавлен успешно!")
         
@@ -153,6 +153,7 @@ class WorkDB:
         self.user_id = user_id
         self.user_dogname = user_dogname
         self.answer_text = answer_text
+        
         try:
             self.c.execute('INSERT INTO `answer` (`request_id`, `user_id`, `user_dogname`, `answer_text`) VALUES (?, ?, ?, ?)', (request_id, user_id, user_dogname, answer_text,))
             self.conn.commit()
@@ -185,7 +186,7 @@ class WorkDB:
 
 # db = WorkDB("main.db")
 
-# db.setRequest("9009", "Asd", "@Asd", "qwert", "lorem lorem lorem lorem", "Tag tag tag")
+# db.setRequest("1111", "aaaa", "@dog", "T", "TEST","test, test, test")
 # db.deleteRequest("8", "9009")
 # db.getRequest("9009", "8")
 # db.editRequestTags("9009", "9", "ew wdsf sgf")
