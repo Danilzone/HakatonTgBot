@@ -71,7 +71,8 @@ async def find_text(message: Message, state: FSMContext):
         await state.update_data(text=message.text)
         data = await state.get_data()
         text = data.get("text")
-        await message.reply(f"Производится поиск {text}")
+        # await message.reply(f"Производится поиск {text}")
+        # db.
         
 # 
 
