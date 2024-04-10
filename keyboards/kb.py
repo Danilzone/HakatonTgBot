@@ -61,11 +61,18 @@ def profile(text: str | list):
     return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 
-def my_requests(text: str |list):
+def my_requests(text: str | list):
     builder = InlineKeyboardBuilder()
-
+    print(text)
     [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"REQ {txt[0]}")) for txt in text ]
-    return builder.as_markup()
+    return builder.adjust(2).as_markup()
+
+
+def list_requests(text: str | list):
+    builder = InlineKeyboardBuilder()
+    print(text)
+    [builder.row(InlineKeyboardButton(text=f"{txt[3]}", callback_data=f"FIND {txt[0]}")) for txt in text ]
+    return builder.adjust(2).as_markup()
 
 
 def interact_request(text: str | list):
@@ -75,6 +82,15 @@ def interact_request(text: str | list):
         InlineKeyboardButton(text="Удалить", callback_data=f"DEL {text}"),
     )
     return builder.as_markup()
+
+
+def set_answer(text: str | list):
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="Ответить", callback_data=f"ANSWER"),
+        InlineKeyboardButton(text="Посмотретьт ответы", callback_data=f"W_ANSWER"),
+    )
+    return builder.adjust(2).as_markup()
 
 
 def edit_request_inline(text):

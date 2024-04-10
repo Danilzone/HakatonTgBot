@@ -67,13 +67,29 @@ async def cmd_refund(message: Message, state: FSMContext):
 
 @router.message(Search.text)
 async def find_text(message: Message, state: FSMContext):
-
         await state.update_data(text=message.text)
         data = await state.get_data()
-        text = data.get("text")
-        # await message.reply(f"Производится поиск {text}")
-        # db.
+        text = data.get("text").replace("'", " ").replace('"', ' ').lower()
+        await message.answer(f"Производится поиск: <i>{text}</i>")
+        print(text)
+        res_db = db.searchRequestText(text)
+        result = []
+        i = 0
+        for request in res_db: 
+            result += [[request[0], request[1], request[2], request[3], request[4]]]
+            i +=1
         
+        if i == 0:
+            await message.answer("Простите, запросов не найдено")
+        else: 
+            await message.answer("Результат поиска: ", reply_markup=kb.list_requests(result))
+            # 
+            
+
+
+        # await message.answer(f"❓Запрос от @efgw : \n💠тема: IJFWEQAG\n• ")
+
+            
 # 
 
 @router.message(F.text.lower() == "рейтинговая таблица")
@@ -179,8 +195,18 @@ async def new_tags(message: Message, state: FSMContext):
     print(request_tags, request_ID)
     db.editRequestTags(f"{message.from_user.id}", f"{request_ID}", f"{request_tags}")
     await message.answer("Тэги успешно обновлены")
-# 
-# 
+
+
+
+@router.callback_query(F.data[:5] == "FIND ")
+async def other_request_watch(callback: CallbackQuery):    
+    data =  ast.literal_eval(callback.data[5:])
+    res = db.getRequestById(data)
+    print(res)
+    try:
+        await callback.message.edit_text(f"❓ <u>Запрос от</u> @{res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer("fas"))
+    except Exception:
+        console.print_exception(show_locals=True)
 
 """
 Работа с БД

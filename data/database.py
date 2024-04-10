@@ -77,7 +77,7 @@ class WorkDB:
             
             return full_requests, titles
         except Exception:
-            console.print_exctption(show_locals=True) 
+            console.print_exception(show_locals=True) 
 
 
     def getRequest(self, user_id, request_id):
@@ -96,9 +96,28 @@ class WorkDB:
             return title, text, tags 
         
         except Exception:
-            console.print_exctption(show_locals=True) 
+            console.print_exception(show_locals=True) 
     
+    def getRequestById(self, request_id):
+        self.request_id = request_id
 
+        res = self.c.execute(' SELECT * FROM `requests` WHERE "id" = ? ', (request_id,)).fetchall()
+        self.conn.commit()
+        
+        if not res:
+            print("[red bold]В БД нет такой записи")
+            print("[yellow bold]Видимо её удалили")
+            return None
+        
+        id = res[0][0]
+        user_id = res[0][1]
+        user_name = res[0][2]
+        user_dogname = res[0][3]
+        request_title = res[0][4]
+        request_text = res[0][5]
+        request_tags = res[0][6]
+        return id, user_id, user_name, user_dogname, request_title, request_text, request_tags 
+        # return res
     # Редактирование существующего 'запроса' и его удаление
 
     def editRequest(self, user_id, request_title, request_text):
@@ -158,7 +177,7 @@ class WorkDB:
             self.c.execute('INSERT INTO `answer` (`request_id`, `user_id`, `user_dogname`, `answer_text`) VALUES (?, ?, ?, ?)', (request_id, user_id, user_dogname, answer_text,))
             self.conn.commit()
         except Exception:
-            console.print_exctption(show_locals=True) 
+            console.print_exception(show_locals=True) 
             
     def deleteAnswer(self, answer_id, user_id):
         self.user_id = user_id
@@ -178,7 +197,7 @@ class WorkDB:
 
     def searchRequestText(self, find_text):
         self.find_text = find_text
-        res = self.c.execute(f'SELECT * FROM `requests` WHERE "request_text" LIKE "%{find_text}%" COLLATE NOCASE ').fetchall()
+        res = self.c.execute(f'SELECT "id","user_id", "user_dogname", "request_title", "request_text", "request_tags" FROM `requests` WHERE "request_lower_text" LIKE "%{find_text}%" COLLATE NOCASE OR "request_lower_title" LIKE "%{find_text}%" COLLATE NOCASE').fetchall()
         return res
         
 
@@ -186,6 +205,7 @@ class WorkDB:
 
 # db = WorkDB("main.db")
 
+# print(db.getRequestById(24))
 # db.setRequest("1111", "aaaa", "@dog", "T", "TEST","test, test, test")
 # db.deleteRequest("8", "9009")
 # db.getRequest("9009", "8")
