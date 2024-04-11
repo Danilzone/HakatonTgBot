@@ -31,7 +31,9 @@ class SetAnswer(StatesGroup):
 class GetReqEdit(StatesGroup):
     request_main = State()
 
-
+class EditMyAnswer(StatesGroup):
+    text = State()
+    answer_id = State()
 
 class NewTitle(StatesGroup):
     new_title = State()

@@ -197,25 +197,23 @@ class WorkDB:
 
         res = self.c.execute(' SELECT * FROM `answer` WHERE "user_id" = ? ', (user_id,)).fetchall()
         self.conn.commit()
-
+        # print(res)
         answer=[]
 
         for my_answ in res:
             req_ans = self.c.execute(' SELECT "request_title" FROM `requests` WHERE "id" = ? ', (my_answ[1],)).fetchone()
             self.conn.commit()
             # print(f"\nТема: {req_ans[0]}\nВаш ответ: {my_answ[4]}\n")
-            answer +=[[req_ans[0], my_answ[4]]]
-
+            answer +=[[my_answ[0],req_ans[0], my_answ[4]]]
         return answer
 
 
-    def deleteAnswer(self, answer_id, user_id):
-        self.user_id = user_id
+    def deleteAnswer(self, answer_id):
         self.answer_id = answer_id
-        
-        self.c.execute('DELETE FROM `answer` WHERE id = ? AND user_id = ?',(answer_id, user_id,))
+        self.c.execute('DELETE FROM `answer` WHERE id = ? ', (answer_id,))
         self.conn.commit()
     
+
     def editAnswer(self, answer_id, user_id, answer_text):
         self.answer_id = answer_id
         self.user_id = user_id

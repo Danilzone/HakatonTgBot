@@ -9,7 +9,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
-    [KeyboardButton(text="Поиск🔎"), KeyboardButton(text="Рейтинговая таблица")]
+    [KeyboardButton(text="Поиск🔎"), ]
 ],
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
@@ -63,14 +63,12 @@ def profile(text: str | list):
 
 def my_requests(text: str | list):
     builder = InlineKeyboardBuilder()
-    print(text)
     [builder.row(InlineKeyboardButton(text=f"{txt[1]}", callback_data=f"REQ {txt[0]}")) for txt in text ]
     return builder.adjust(2).as_markup()
 
 
 def list_requests(text: str | list):
     builder = InlineKeyboardBuilder()
-    print(text)
     [builder.row(InlineKeyboardButton(text=f"{txt[3]}", callback_data=f"FIND {txt[0]}")) for txt in text ]
     return builder.adjust(2).as_markup()
 
@@ -86,10 +84,18 @@ def interact_request(text: str | list):
     return builder.adjust(2).as_markup()
 
 
+def interact_answer(text: str | list):
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="Редактировать", callback_data=f"EDIT_A {text}"),
+        InlineKeyboardButton(text="Удалить", callback_data=f"DEL_A {text}"),
+    )
+    return builder.adjust(2).as_markup()
+
+
+
 def set_answer(text: str | list):
     builder = InlineKeyboardBuilder()
-    print("kb 89 \n \n \n")
-    print(text)
 
     builder.row(
         InlineKeyboardButton(text="Ответить", callback_data=f"S_ANSWER {text[0]}"),
@@ -100,7 +106,6 @@ def set_answer(text: str | list):
 
 def edit_request_inline(text):
     builder = InlineKeyboardBuilder()
-    print(text)
     builder.row(
         InlineKeyboardButton(text="Заголовок", callback_data=f"TITLE {text[0]}"),
         InlineKeyboardButton(text="Текст", callback_data=f"TEXT {text[0]}"),

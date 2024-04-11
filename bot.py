@@ -13,7 +13,7 @@ async def main():
 
     dp.include_routers(
         commands.router,
-        questionaire.router,
+        # questionaire.router,
     )
 
     await bot.delete_webhook(drop_pending_updates=True)

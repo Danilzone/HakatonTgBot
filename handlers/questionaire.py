@@ -62,9 +62,6 @@ async def fill_profile(message: Message, state: FSMContext):
     
     
 
- 
-
-
 
 
 

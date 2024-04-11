@@ -6,7 +6,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 
 from aiogram.fsm.context import FSMContext
 from utils.states import GetReqEdit
-from utils.states import Form, Search,SearchByTags, SetAnswer
+from utils.states import Form, Search,SearchByTags, SetAnswer, EditMyAnswer, Create
 
 from keyboards import kb
 from rich import print
@@ -56,8 +56,12 @@ async def cmd_refund(message: Message):
 async def my_answers(message: Message):
     try:
         res_db = db.getMyAnswers(message.from_user.id)
-        for my_answer in res_db:
-            await message.answer(f"💠<u>тема</u>: {my_answer[0]}\n • <u>Ваш ответ</u>: {my_answer[1]}\n")
+        print(res_db)
+        if not res_db:
+            await message.answer("Вы еще не отвечали ни на какие запросы")
+        else:
+            for my_answer in res_db:
+                await message.answer(f"💠<u>тема</u>: {my_answer[1]}\n • <u>Ваш ответ</u>: {my_answer[2]}\n", reply_markup=kb.interact_answer(my_answer[0]))
     except Exception:
         console.print_exception(show_locals=True)
 
@@ -83,7 +87,6 @@ async def find_text(message: Message, state: FSMContext):
         text = data.get("text").replace("'", " ").replace('"', ' ').lower()  
 
         await message.answer(f"Производится поиск по тегам")
-        print(text)
         res_db = db.searchRequestTags(text)
         result = []
         i = 0
@@ -109,14 +112,12 @@ async def find_text(message: Message, state: FSMContext):
         data = await state.get_data()
         text = data.get("text").replace("'", " ").replace('"', ' ').lower()
         await message.answer(f"Производится поиск: <i>{text}</i>")
-        print(text)
         res_db = db.searchRequestText(text)
         result = []
         i = 0
         for request in res_db: 
             result += [[request[0], request[1], request[2], request[3], request[4]]]
             i +=1
-        
         if i == 0:
             await message.answer("Простите, запросов не найдено")
         else: 
@@ -137,7 +138,6 @@ async def my_requests_callback(callback: CallbackQuery):
     await callback.answer(" ")
     request = db.getRequest(callback.from_user.id, callback.data[4:]) # Если в БД есть такой запрос , то в request есть данные  
     if request == None:                                               # ИНАЧЕ он равен None - это значит что в БД нет такого запроса и он выводит сообщение о том что не найдено запроса
-        print("Ой")
         await callback.message.answer("Простите, но такого запросо не найденно :( ") # Можем отсюда это убрать, и бот будет молчать
     else:
         await callback.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request([callback.data[4:], callback.from_user.id]))
@@ -157,7 +157,6 @@ async def delete_my_requests_callback(callback: CallbackQuery):
 async def edit_my_requests_callback(callback: CallbackQuery):
     data = ast.literal_eval(callback.data[5:])
     await callback.answer(" ")
-    print(type(data))
     await callback.message.edit_text(f"Что хотите отредактировать?", reply_markup=kb.edit_request_inline( data ))
 
 
@@ -174,11 +173,9 @@ async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
 async def new_title(message: Message, state: FSMContext):
     await state.update_data(title=message.text)
     data = await state.get_data()
-    print(data)
     await state.clear()
     request_title = data.get("title")
     request_ID = data.get("id")
-    print(request_title, request_ID)
     db.editRequestTitle(f"{message.from_user.id}", f"{request_ID}", f"{request_title}")
     await message.answer("Тема успешно обновлена")
 
@@ -196,11 +193,9 @@ async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
 async def new_text(message: Message, state: FSMContext):
     await state.update_data(text=message.text)
     data = await state.get_data()
-    print(data)
     await state.clear()
     request_text = data.get("text")
     request_ID = data.get("id")
-    print(request_text, request_ID)
     db.editRequestText(f"{message.from_user.id}", f"{request_ID}", f"{request_text}")
     await message.answer("Текст успешно обновлен")
 
@@ -219,11 +214,9 @@ async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
 async def new_tags(message: Message, state: FSMContext):
     await state.update_data(tags=message.text)
     data = await state.get_data()
-    print(data)
     await state.clear()
     request_tags = data.get("tags")
     request_ID = data.get("id")
-    print(request_tags, request_ID)
     db.editRequestTags(f"{message.from_user.id}", f"{request_ID}", f"{request_tags}")
     await message.answer("Тэги успешно обновлены")
 
@@ -233,7 +226,6 @@ async def new_tags(message: Message, state: FSMContext):
 async def other_request_watch(callback: CallbackQuery):    
     data =  ast.literal_eval(callback.data[5:])
     res = db.getRequestById(data)
-    print(res)
     try:
         await callback.message.edit_text(f"❓ <u>Запрос от</u> {res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer(res))
     except Exception:
@@ -264,7 +256,6 @@ async def other_request_set(callback: CallbackQuery):
     data = ast.literal_eval(callback.data[9:])
     await callback.answer(" ")
     res_db = db.getAnswers(data)
-    print(res_db)    
     if not res_db:
         await callback.message.answer("К сожалению на этот вопрос нету ответа\nХотите первым на него ответить?")
     else:
@@ -283,7 +274,79 @@ async def other_request_set(callback: CallbackQuery):
         for answer in res_db:
             await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}")
 
+      
+@router.callback_query(F.data[:6] == "DEL_A ")
+async def delete_my_requests_callback(callback: CallbackQuery):
+    await callback.message.delete()
+    await callback.answer(" ")
+    db.deleteAnswer(callback.data[6:])
+    await callback.message.answer("Вы удалили ответ")
 
+
+@router.callback_query(F.data[:7] == "EDIT_A ")
+async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(EditMyAnswer.text)
+    await state.update_data(answer_id=callback.data[7:])
+    await callback.answer(" ")
+    await callback.message.reply(f"Вводите новый текст ответа")
+
+
+@router.message(EditMyAnswer.text)
+async def find_text(message: Message, state: FSMContext):
+        await state.update_data(text=message.text)
+        data = await state.get_data()
+        text = data.get("text")
+        id = data.get("answer_id")
+        db.editAnswer(id, message.from_user.id, text)
+        await message.reply("Успешно обновлено!")
+
+
+@router.message(F.text.lower() == "создать запрос")
+async def fill_profile(message: Message, state: FSMContext):
+    print("AOAOA")
+    await state.set_state(Create.request_title)
+    await message.answer(
+        "Давай начнем!\nВведите тему вопроса", 
+    )
+
+
+@router.message(Create.request_title)
+async def fill_profile(message: Message, state: FSMContext):
+    await state.update_data(title=message.text)
+    await state.set_state(Create.request_text)
+    await message.answer(
+        "Хорошо!\nТеперь введи текст своего запроса",
+    )
+
+
+@router.message(Create.request_text)
+async def fill_profile(message: Message, state: FSMContext):
+    await state.update_data(text=message.text)
+    await state.set_state(Create.request_tags)
+    await message.answer(
+        "Осталось немного.\nУкажи теги для своего запроса\n \nПример: <code>Программирование, Языки, Проблема</code>",
+    )
+
+
+@router.message(Create.request_tags)
+async def fill_profile(message: Message, state: FSMContext):
+    await state.update_data(tags=message.text)
+    data = await state.get_data()
+    await state.clear()
+    request_title = data.get("title")
+    request_text = data.get("text")
+    request_tags = data.get("tags")
+    try: 
+        db.setRequest(f"{message.from_user.id}", f"{message.from_user.full_name}", f"@{message.from_user.username}", f"{request_title}", f"{request_text}", f"{request_tags}")
+        await message.answer(
+            f"<b>Ваш запрос успешно отправлен✅:</b>\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \n    Теги: <code>{request_tags}</code>", 
+        )
+    except Exception:
+        console.print_exception(show_locals=True)
+
+@router.message()
+async def cmd_refund(message: Message):
+    await message.reply("Простите, используйте кнопки для навигации")
 """
 Работа с БД
 
