@@ -108,7 +108,6 @@ class WorkDB:
             print("[red bold]В БД нет такой записи")
             print("[yellow bold]Видимо её удалили")
             return None
-        
         id = res[0][0]
         user_id = res[0][1]
         user_name = res[0][2]
@@ -117,7 +116,8 @@ class WorkDB:
         request_text = res[0][5]
         request_tags = res[0][6]
         return id, user_id, user_name, user_dogname, request_title, request_text, request_tags 
-        # return res
+
+
     # Редактирование существующего 'запроса' и его удаление
 
     def editRequest(self, user_id, request_title, request_text):
@@ -179,7 +179,35 @@ class WorkDB:
         except Exception:
             console.print_exception(show_locals=True) 
             
-    # def getAnswers(self, request_id ):            
+    def getAnswers(self, request_id ):            
+        self.request_id = request_id
+
+        res = self.c.execute(' SELECT * FROM `answer` WHERE "request_id" = ? ', (request_id,)).fetchall()
+        self.conn.commit()
+        
+        if not res:
+            print("[red bold]В БД нет такой записи")
+            print("[yellow bold]Видимо её удалили")
+            return None
+        
+        return res
+
+    def getMyAnswers(self, user_id):
+        self.user_id = user_id
+
+        res = self.c.execute(' SELECT * FROM `answer` WHERE "user_id" = ? ', (user_id,)).fetchall()
+        self.conn.commit()
+
+        answer=[]
+
+        for my_answ in res:
+            req_ans = self.c.execute(' SELECT "request_title" FROM `requests` WHERE "id" = ? ', (my_answ[1],)).fetchone()
+            self.conn.commit()
+            # print(f"\nТема: {req_ans[0]}\nВаш ответ: {my_answ[4]}\n")
+            answer +=[[req_ans[0], my_answ[4]]]
+
+        return answer
+
 
     def deleteAnswer(self, answer_id, user_id):
         self.user_id = user_id
@@ -203,10 +231,17 @@ class WorkDB:
         return res
         
 
+    def searchRequestTags(self, find_text):
+        self.find_text = find_text
+        res = self.c.execute(f'SELECT "id","user_id", "user_dogname", "request_title", "request_text", "request_tags" FROM `requests` WHERE "request_tags" LIKE "%{find_text}%" COLLATE NOCASE OR "request_tags" LIKE "%{find_text}%" COLLATE NOCASE').fetchall()
+        return res
+        
+
 # ТЕСТИРОВАНИЕ
 
 # db = WorkDB("main.db")
 
+# db.getMyAnswers("719833590")
 # print(db.getRequestById(24))
 # db.setRequest("1111", "aaaa", "@dog", "T", "TEST","test, test, test")
 # db.deleteRequest("8", "9009")

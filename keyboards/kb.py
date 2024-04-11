@@ -88,9 +88,10 @@ def set_answer(text: str | list):
     builder = InlineKeyboardBuilder()
     print("kb 89 \n \n \n")
     print(text)
+
     builder.row(
-        InlineKeyboardButton(text="Ответить", callback_data=f"S_ANSWER "),
-        InlineKeyboardButton(text="Посмотретьт ответы", callback_data=f"W_ANSWER "),
+        InlineKeyboardButton(text="Ответить", callback_data=f"S_ANSWER {text[0]}"),
+        InlineKeyboardButton(text="Посмотретьт ответы", callback_data=f"W_ANSWER {text[0]}"),
     )
     return builder.adjust(2).as_markup()
 

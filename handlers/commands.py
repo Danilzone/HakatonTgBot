@@ -6,7 +6,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 
 from aiogram.fsm.context import FSMContext
 from utils.states import GetReqEdit
-from utils.states import Form, Search, SetAnswer
+from utils.states import Form, Search,SearchByTags, SetAnswer
 
 from keyboards import kb
 from rich import print
@@ -52,11 +52,52 @@ async def cmd_refund(message: Message):
         console.print_exception(show_locals=True)
 
 
+@router.message(F.text.lower() == "мои ответы")
+async def my_answers(message: Message):
+    try:
+        res_db = db.getMyAnswers(message.from_user.id)
+        # print(res_db)
+        for my_answer in res_db:
+            await message.answer(f"💠<u>тема</u>: {my_answer[0]}\n • <u>Ваш ответ</u>: {my_answer[1]}\n")
+
+        # await message.reply(f"выберите свой запрос", reply_markup=my_requests(res_db) )
+    except Exception:
+        console.print_exception(show_locals=True)
+
+
 
 @router.message(F.text.lower() == "поиск🔎")
 async def cmd_refund(message: Message):
     await message.reply(f"выберите один пункт",
                         reply_markup=kb.search)
+
+
+
+@router.message(F.text.lower() == "поиск по тегам")
+async def cmd_refund(message: Message, state: FSMContext):
+    await state.set_state(SearchByTags.text)
+    await message.reply(f"Введите теги")
+
+
+@router.message(SearchByTags.text)
+async def find_text(message: Message, state: FSMContext):
+        await state.update_data(text=message.text)
+        data = await state.get_data()
+        text = data.get("text").replace("'", " ").replace('"', ' ').lower()  
+
+        await message.answer(f"Производится поиск по тегам")
+        print(text)
+        res_db = db.searchRequestTags(text)
+        result = []
+        i = 0
+        for request in res_db: 
+            result += [[request[0], request[1], request[2], request[3], request[4]]]
+            i +=1
+        
+        if i == 0:
+            await message.answer("Простите, запросов не найдено")
+        else: 
+            await message.answer(f"Результат поиска по тегу(ам): <code>{text}</code> ", reply_markup=kb.list_requests(result))
 
 
 @router.message(F.text.lower() == "поиск по словам")
@@ -83,14 +124,7 @@ async def find_text(message: Message, state: FSMContext):
             await message.answer("Простите, запросов не найдено")
         else: 
             await message.answer("Результат поиска: ", reply_markup=kb.list_requests(result))
-            # 
-            
 
-
-        # await message.answer(f"❓Запрос от @efgw : \n💠тема: IJFWEQAG\n• ")
-
-            
-# 
 
 @router.message(F.text.lower() == "рейтинговая таблица")
 async def cmd_refund(message: Message):
@@ -204,16 +238,17 @@ async def other_request_watch(callback: CallbackQuery):
     res = db.getRequestById(data)
     print(res)
     try:
-        await callback.message.edit_text(f"❓ <u>Запрос от</u> @{res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer(res))
+        await callback.message.edit_text(f"❓ <u>Запрос от</u> {res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer(res))
     except Exception:
         console.print_exception(show_locals=True)
 
 
 @router.callback_query(F.data[:9] == "S_ANSWER ")
 async def other_request_set(callback: CallbackQuery, state: FSMContext):    
+    data = ast.literal_eval(callback.data[9:])
     await callback.answer(" ")
     await state.set_state(SetAnswer.text)
-
+    await state.update_data(request_id=data)
     await callback.message.reply(f"Пишите ответ")
     
 @router.message(SetAnswer.text)
@@ -221,7 +256,19 @@ async def other_request_set(message: Message, state: FSMContext):
     await state.update_data(text=message.text)
     data = await state.get_data()
     text = data.get("text")
-    print(f"Коммент : {text}")
+    id = data.get("request_id")
+    db.setAnswer(id, message.from_user.id, "@"+message.from_user.username, text)
+    await message.reply("Ваш ответ успешно добавлен")
+
+@router.callback_query(F.data[:9] == "W_ANSWER ")
+async def other_request_set(callback: CallbackQuery):    
+    data = ast.literal_eval(callback.data[9:])
+    await callback.answer(" ")
+    res_db = db.getAnswers(data)
+    
+    for answer in res_db:
+        await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}")
+
 
 """
 Работа с БД

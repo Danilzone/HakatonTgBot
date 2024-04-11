@@ -20,13 +20,17 @@ class Create(StatesGroup):
 class Search(StatesGroup):
     text = State()
 
-
-class SetAnswer(StatesGroup):
+class SearchByTags(StatesGroup):
     text = State()
 
 
+class SetAnswer(StatesGroup):
+    text = State()
+    request_id = State()
+
 class GetReqEdit(StatesGroup):
     request_main = State()
+
 
 
 class NewTitle(StatesGroup):
