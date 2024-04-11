@@ -76,11 +76,8 @@ async def cmd_refund(message: Message):
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'
 
 
-
-
 @router.message(F.text.lower() == "создать запрос")
 async def fill_profile(message: Message, state: FSMContext):
-    print("AOAOA")
     await state.set_state(Create.request_title)
     await message.answer(
         "Давай начнем!\nВведите тему вопроса", 

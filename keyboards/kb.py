@@ -100,6 +100,7 @@ def set_answer(text: str | list):
     builder.row(
         InlineKeyboardButton(text="Ответить", callback_data=f"S_ANSWER {text[0]}"),
         InlineKeyboardButton(text="Посмотретьт ответы", callback_data=f"W_ANSWER {text[0]}"),
+        InlineKeyboardButton(text="На главный экран", callback_data=f"Back"),
     )
     return builder.adjust(2).as_markup()
 
@@ -110,6 +111,17 @@ def edit_request_inline(text):
         InlineKeyboardButton(text="Заголовок", callback_data=f"TITLE {text[0]}"),
         InlineKeyboardButton(text="Текст", callback_data=f"TEXT {text[0]}"),
         InlineKeyboardButton(text="Тэги", callback_data=f"TAGS {text[0]}"), width=2
+    )
+    
+    return builder.as_markup()
+
+
+def like_answer(text):
+    builder = InlineKeyboardBuilder()
+    print(f"id : {text}")
+    builder.row(
+        InlineKeyboardButton(text="👍", callback_data=f"LIKE {text}"),
+        InlineKeyboardButton(text="👎", callback_data=f"DISLIKE {text}"),
     )
     
     return builder.as_markup()

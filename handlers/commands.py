@@ -38,8 +38,8 @@ async def cmd_refund(message: Message, state: FSMContext):
 async def find_text(message: Message, state: FSMContext):
         await state.update_data(text=message.text)
         data = await state.get_data()
-        text = data.get("text").replace("'", " ").replace('"', ' ').lower()  
         await state.clear()
+        text = data.get("text").replace("'", " ").replace('"', ' ').lower()  
         await message.answer(f"Производится поиск по тегам")
         res_db = db.searchRequestTags(text)
         result = []
@@ -86,7 +86,7 @@ async def my_requests_callback(callback: CallbackQuery):
     if request == None:                                               # ИНАЧЕ он равен None - это значит что в БД нет такого запроса и он выводит сообщение о том что не найдено запроса
         await callback.message.answer("Простите, но такого запросо не найденно :( ", reply_markup=kb.main) # Можем отсюда это убрать, и бот будет молчать
     else:
-        await callback.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}", reply_markup=kb.interact_request([callback.data[4:], callback.from_user.id]))
+        await callback.message.answer(f"💠тема: <u>{request[0]}</u>\n• {request[1]}\n \n<code>{request[2]}</code>", reply_markup=kb.interact_request([callback.data[4:], callback.from_user.id]))
 
       
 @router.callback_query(F.data[:4] == "DEL ")
@@ -170,8 +170,9 @@ async def new_tags(message: Message, state: FSMContext):
 async def other_request_watch(callback: CallbackQuery):    
     data =  ast.literal_eval(callback.data[5:])
     res = db.getRequestById(data)
+
     try:
-        await callback.message.edit_text(f"❓ <u>Запрос от</u> {res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}", reply_markup=kb.set_answer(res))
+        await callback.message.edit_text(f"❓ <u>Запрос от</u> {res[3]}: \n💠<u>тема</u>: {res[4]}\n• {res[5]}\n \n<code>{res[6]}</code>", reply_markup=kb.set_answer(res))
     except Exception:
         console.print_exception(show_locals=True)
 
@@ -189,6 +190,7 @@ async def other_request_set(callback: CallbackQuery, state: FSMContext):
 async def other_request_set(message: Message, state: FSMContext):
     await state.update_data(text=message.text)
     data = await state.get_data()
+    await state.clear()
     text = data.get("text")
     id = data.get("request_id")
     db.setAnswer(id, message.from_user.id, "@"+message.from_user.username, text)
@@ -204,7 +206,7 @@ async def other_request_set(callback: CallbackQuery):
         await callback.message.answer("К сожалению на этот вопрос нету ответа\nХотите первым на него ответить?", reply_markup=kb.main)
     else:
         for answer in res_db:
-            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}", reply_markup=kb.main)
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nЛайков: <b>{answer[5]}</b>", reply_markup=kb.like_answer(answer[0]))
 
 
 @router.callback_query(F.data[:7] == "W_A_MR ")
@@ -216,7 +218,7 @@ async def other_request_set(callback: CallbackQuery):
         await callback.message.answer("К сожалению на этот вопрос нету ответа", reply_markup=kb.main)
     else:
         for answer in res_db:
-            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}", reply_markup=kb.main)
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nЛайков: <b>{answer[5]}</b>", reply_markup=kb.main)
 
       
 @router.callback_query(F.data[:6] == "DEL_A ")
@@ -225,6 +227,13 @@ async def delete_my_requests_callback(callback: CallbackQuery):
     await callback.answer(" ")
     db.deleteAnswer(callback.data[6:])
     await callback.message.answer("Вы удалили ответ")
+
+
+@router.callback_query(F.data == "Back")
+async def cmd_refund_clbk(callback: CallbackQuery):
+    await callback.answer(" ")
+    await callback.message.delete()
+    await callback.message.answer(f"выберите один пункт", reply_markup=kb.main)
 
 
 @router.callback_query(F.data[:7] == "EDIT_A ")
@@ -239,6 +248,7 @@ async def edit_my_requests_callback(callback: CallbackQuery, state: FSMContext):
 async def find_text(message: Message, state: FSMContext):
         await state.update_data(text=message.text)
         data = await state.get_data()
+        await state.clear()
         text = data.get("text")
         id = data.get("answer_id")
         db.editAnswer(id, message.from_user.id, text)

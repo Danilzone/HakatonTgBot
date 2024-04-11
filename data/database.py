@@ -234,16 +234,40 @@ class WorkDB:
         res = self.c.execute(f'SELECT "id","user_id", "user_dogname", "request_title", "request_text", "request_tags" FROM `requests` WHERE "request_tags" LIKE "%{find_text}%" COLLATE NOCASE OR "request_tags" LIKE "%{find_text}%" COLLATE NOCASE').fetchall()
         return res
         
+    def like(self, answer_id, liked_user_id):
+        self.answer_id = answer_id
+        self.liked_user_id = liked_user_id
 
-# ТЕСТИРОВАНИЕ
+        list_likes = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()
+        self.conn.commit()
 
-# db = WorkDB("main.db")
+        print(list_likes)
 
-# db.getMyAnswers("719833590")
-# print(db.getRequestById(24))
-# db.setRequest("1111", "aaaa", "@dog", "T", "TEST","test, test, test")
-# db.deleteRequest("8", "9009")
-# db.getRequest("9009", "8")
-# db.editRequestTags("9009", "9", "ew wdsf sgf")
-# print(db.searchRequestText("Fd"))
+        if f"{answer_id}, " in list_likes:
+            print("Уже есть")
+
+        else: 
+
+            if list_likes[0] == None:
+                print("no")
+
+                count_like = self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()
+                self.conn.commit()
+
+                if count_like == None:
+                    count_like = 1
+
+                    self.c.execute(' UPDATE `answer` SET "count_likes" = ? WHERE "id" = ?', (count_like, answer_id,))
+                    self.conn.commit()
+                else:
+                    count_like += 1
+
+
+            else:
+                pass
+
+        # self.conn.commit()
+        
+        # return count_like
+
 
