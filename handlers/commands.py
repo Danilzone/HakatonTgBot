@@ -56,11 +56,8 @@ async def cmd_refund(message: Message):
 async def my_answers(message: Message):
     try:
         res_db = db.getMyAnswers(message.from_user.id)
-        # print(res_db)
         for my_answer in res_db:
             await message.answer(f"💠<u>тема</u>: {my_answer[0]}\n • <u>Ваш ответ</u>: {my_answer[1]}\n")
-
-        # await message.reply(f"выберите свой запрос", reply_markup=my_requests(res_db) )
     except Exception:
         console.print_exception(show_locals=True)
 
@@ -250,7 +247,8 @@ async def other_request_set(callback: CallbackQuery, state: FSMContext):
     await state.set_state(SetAnswer.text)
     await state.update_data(request_id=data)
     await callback.message.reply(f"Пишите ответ")
-    
+
+
 @router.message(SetAnswer.text)
 async def other_request_set(message: Message, state: FSMContext):
     await state.update_data(text=message.text)
@@ -260,14 +258,30 @@ async def other_request_set(message: Message, state: FSMContext):
     db.setAnswer(id, message.from_user.id, "@"+message.from_user.username, text)
     await message.reply("Ваш ответ успешно добавлен")
 
+
 @router.callback_query(F.data[:9] == "W_ANSWER ")
 async def other_request_set(callback: CallbackQuery):    
     data = ast.literal_eval(callback.data[9:])
     await callback.answer(" ")
     res_db = db.getAnswers(data)
-    
-    for answer in res_db:
-        await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}")
+    print(res_db)    
+    if not res_db:
+        await callback.message.answer("К сожалению на этот вопрос нету ответа\nХотите первым на него ответить?")
+    else:
+        for answer in res_db:
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}")
+
+
+@router.callback_query(F.data[:7] == "W_A_MR ")
+async def other_request_set(callback: CallbackQuery):    
+    data = ast.literal_eval(callback.data[7:])
+    await callback.answer(" ")
+    res_db = db.getAnswers(data[0])
+    if not res_db:
+        await callback.message.answer("К сожалению на этот вопрос нету ответа")
+    else:
+        for answer in res_db:
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}")
 
 
 """

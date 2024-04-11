@@ -77,11 +77,13 @@ def list_requests(text: str | list):
 
 def interact_request(text: str | list):
     builder = InlineKeyboardBuilder()
+
     builder.row(
         InlineKeyboardButton(text="Редактировать", callback_data=f"EDIT {text}"),
         InlineKeyboardButton(text="Удалить", callback_data=f"DEL {text}"),
+        InlineKeyboardButton(text="Посмотреть ответы", callback_data=f"W_A_MR {text}"),
     )
-    return builder.as_markup()
+    return builder.adjust(2).as_markup()
 
 
 def set_answer(text: str | list):
