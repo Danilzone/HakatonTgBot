@@ -22,11 +22,7 @@
 
 
 
-eo;rjhbg;eiorbgekr;jgbeikrgjb
 
-
-rgr[psdl[gsd]]
-пырШПврг
 
 
 
