@@ -7,7 +7,7 @@ from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.fsm.context import FSMContext
 from utils.states import GetReqEdit
 from utils.states import Form, Search,SearchByTags, SetAnswer, EditMyAnswer, Create
-
+from bot import bot
 from keyboards import kb
 from rich import print
 from data.database import WorkDB
@@ -22,8 +22,11 @@ router = Router()
 console = Console()
 
 
+
+
 @router.message(F.text.lower() == "поиск🔎")
 async def cmd_refund(message: Message):
+    
     await message.reply(f"выберите один пункт",
                         reply_markup=kb.search)
 
@@ -193,8 +196,18 @@ async def other_request_set(message: Message, state: FSMContext):
     await state.clear()
     text = data.get("text")
     id = data.get("request_id")
-    db.setAnswer(id, message.from_user.id, "@"+message.from_user.username, text)
+    dogname = "@"+message.from_user.username
+    res = db.setAnswer(id, message.from_user.id, "@"+message.from_user.username, text)
     await message.reply("Ваш ответ успешно добавлен", reply_markup=kb.main)
+
+    user_req = db.getRequestById(id)[1]
+    if message.from_user.id != user_req:
+        title = db.getRequestById(id)[4]
+        await bot.send_message(chat_id=res, text=f"Пришел ответ на ваш запрос: <b>{title}</b>\nОт пользователя: <b>{dogname}</b>", reply_markup=kb.check(id))
+    else:
+        print("ответил на свой же запрос")
+    # 
+    # 
 
 
 @router.callback_query(F.data[:9] == "W_ANSWER ")
@@ -206,7 +219,7 @@ async def other_request_set(callback: CallbackQuery):
         await callback.message.answer("К сожалению на этот вопрос нету ответа\nХотите первым на него ответить?", reply_markup=kb.main)
     else:
         for answer in res_db:
-            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nЛайков: <b>{answer[5]}</b>", reply_markup=kb.like_answer(answer[0]))
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nОценка: <b>{answer[5]}</b>", reply_markup=kb.like_answer(answer[0]))
 
 
 @router.callback_query(F.data[:7] == "W_A_MR ")
@@ -218,7 +231,7 @@ async def other_request_set(callback: CallbackQuery):
         await callback.message.answer("К сожалению на этот вопрос нету ответа", reply_markup=kb.main)
     else:
         for answer in res_db:
-            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nЛайков: <b>{answer[5]}</b>", reply_markup=kb.main)
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nОценка: <b>{answer[5]}</b>", reply_markup=kb.main)
 
       
 @router.callback_query(F.data[:6] == "DEL_A ")
@@ -259,9 +272,40 @@ async def find_text(message: Message, state: FSMContext):
 async def edit_my_requests_callback(callback: CallbackQuery):
     await callback.answer(" ")
     print(callback.data[5:])
-    print(callback.message.from_user)
-    # db.like(callback.data[5:], callback.message.from_user.id)
-    await callback.message.reply(f"Лайк поставлен")
+    res = db.like(callback.data[5:], callback.message.chat.id)
+        
+    if res == True:
+        await callback.message.reply(f"Лайк поставлен",  reply_markup=kb.main)
+    elif res == "No Find":
+        await callback.message.reply(f"Этот коментарий уже удален", reply_markup=kb.main)
+    else:
+        await callback.message.reply(f"Вы уже оценили этот коментарий", reply_markup=kb.main)
+
+
+@router.callback_query(F.data[:8] == "DISLIKE ")
+async def edit_my_requests_callback(callback: CallbackQuery):
+    await callback.answer(" ")
+    print(callback.data[8:])
+    res = db.dislike(callback.data[8:], callback.message.chat.id)
+        
+    if res == True:
+        await callback.message.reply(f"Дизлайк поставлен",  reply_markup=kb.main)
+    elif res == "No Find":
+        await callback.message.reply(f"Этот коментарий уже удален", reply_markup=kb.main)
+    else:
+        await callback.message.reply(f"Вы уже оценили этот коментарий", reply_markup=kb.main)
+
+
+@router.callback_query(F.data[:6] == "CHECK ")
+async def check(callback: CallbackQuery):
+    await callback.answer(" ")
+    res_db = db.getAnswers(callback.data[6:])
+    if not res_db:
+        await callback.message.answer("К сожалению на этот вопрос нету ответа\nХотите первым на него ответить?", reply_markup=kb.main)
+    else:
+        for answer in res_db:
+            await callback.message.answer(f"❕ <u>ответь от</u>:{answer[3]} \n• {answer[4]}\n \nОценка: <b>{answer[5]}</b>", reply_markup=kb.like_answer(answer[0]))
+
 
 
 """

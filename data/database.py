@@ -118,6 +118,8 @@ class WorkDB:
         return id, user_id, user_name, user_dogname, request_title, request_text, request_tags 
 
 
+
+
     # Редактирование существующего 'запроса' и его удаление
 
     def editRequest(self, user_id, request_title, request_text):
@@ -176,6 +178,11 @@ class WorkDB:
         try:
             self.c.execute('INSERT INTO `answer` (`request_id`, `user_id`, `user_dogname`, `answer_text`) VALUES (?, ?, ?, ?)', (request_id, user_id, user_dogname, answer_text,))
             self.conn.commit()
+
+            res = self.c.execute(' SELECT "user_id" FROM `requests` WHERE "id"  = ?  ', (request_id,)).fetchone()[0]
+            self.conn.commit()
+            return res
+        
         except Exception:
             console.print_exception(show_locals=True) 
             
@@ -238,6 +245,12 @@ class WorkDB:
         self.answer_id = answer_id
         self.liked_user_id = liked_user_id
 
+        check = self.c.execute(' SELECT * FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchall()
+        self.conn.commit()
+        
+        if not check:
+            return "No Find"
+
         list_likes = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()
         self.conn.commit()
 
@@ -246,12 +259,11 @@ class WorkDB:
 
 
         if f"{answer_id}, " in list_likes[0]:
-            print("Уже есть")
+            return False
 
         else: 
 
             if list_likes[0] == None:
-                print("no")
 
                 count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
                 self.conn.commit()
@@ -265,6 +277,8 @@ class WorkDB:
                     self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (f"{answer_id}, ", liked_user_id,))
                     self.conn.commit()
 
+                    return True
+
                 else:
                     count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
                     self.conn.commit()
@@ -275,6 +289,8 @@ class WorkDB:
 
                     self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (f"{answer_id}, ", liked_user_id,))
                     self.conn.commit()
+
+                    return True
             
             else:
                 list = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()[0]
@@ -283,7 +299,7 @@ class WorkDB:
                 new_list = list + f"{answer_id}, "
                 print(new_list)
 
-                count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
+                count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])  
                 self.conn.commit()
 
                 count_like += 1
@@ -294,8 +310,102 @@ class WorkDB:
                 self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (new_list, liked_user_id,))
                 self.conn.commit()
 
-        # self.conn.commit()
+                return True
+            
+    def dislike(self, answer_id, liked_user_id):
+        self.answer_id = answer_id
+        self.liked_user_id = liked_user_id
+
+        check = self.c.execute(' SELECT * FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchall()
+        self.conn.commit()
         
-        # return count_like
+        if not check:
+            return "No Find"
+
+        list_likes = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()
+        self.conn.commit()
+
+        print(f'[yellow bold] SELECT "list_likes" FROM `users` WHERE "user_id" = {liked_user_id}')
+        print(list_likes)
+
+
+        if f"{answer_id}, " in list_likes[0]:
+            return False
+
+        else: 
+
+            if list_likes[0] == None:
+
+                count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
+                self.conn.commit()
+                
+                if count_like == 0:
+                    count_like = -1
+
+                    self.c.execute(' UPDATE `answer` SET "count_like" = ? WHERE "id" = ?', (count_like, answer_id,))
+                    self.conn.commit()
+
+                    self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (f"{answer_id}, ", liked_user_id,))
+                    self.conn.commit()
+
+                    return True
+
+                else:
+                    count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
+                    self.conn.commit()
+                    count_like -=1
+
+                    self.c.execute(' UPDATE `answer` SET "count_like" = ? WHERE "id" = ?', (count_like, answer_id,))
+                    self.conn.commit()
+
+                    self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (f"{answer_id}, ", liked_user_id,))
+                    self.conn.commit()
+
+                    return True
+            
+            else:
+                list = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()[0]
+                self.conn.commit()
+
+                new_list = list + f"{answer_id}, "
+                print(new_list)
+
+                count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])  
+                self.conn.commit()
+
+                count_like -= 1
+                
+                self.c.execute(' UPDATE `answer` SET "count_like" = ? WHERE "id" = ?', (count_like, answer_id,))
+                self.conn.commit()    
+
+                self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (new_list, liked_user_id,))
+                self.conn.commit()
+
+                return True
+
+
+    def topBestAnswers(self, request_id):
+        self.request_id = request_id
+        res = self.c.execute(' SELECT * FROM `answer` WHERE "request_id" = ?  ORDER BY "count_like" DESC ', (request_id,) ).fetchall()
+        self.conn.commit() 
+
+        answers = []
+
+        for answer in res:
+            answers += [[answer]]
+        
+        return answers
+
+    def topWostAnswers(self, request_id):
+        self.request_id = request_id
+        res = self.c.execute(' SELECT * FROM `answer` WHERE "request_id" = ?  ORDER BY "count_like" ASC ', (request_id,) ).fetchall()
+        self.conn.commit() 
+
+        answers = []
+
+        for answer in res:
+            answers += [[answer]]
+        
+        return answers   
 
 

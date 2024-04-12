@@ -118,10 +118,19 @@ def edit_request_inline(text):
 
 def like_answer(text):
     builder = InlineKeyboardBuilder()
-    print(f"id : {text}")
     builder.row(
         InlineKeyboardButton(text="👍", callback_data=f"LIKE {text}"),
         InlineKeyboardButton(text="👎", callback_data=f"DISLIKE {text}"),
+    )
+    
+    return builder.as_markup()
+
+
+def check(text):
+    builder = InlineKeyboardBuilder()
+    print(f"чек : {text}")
+    builder.row(
+        InlineKeyboardButton(text="Посмотреть ответ", callback_data=f"CHECK {text}")
     )
     
     return builder.as_markup()
