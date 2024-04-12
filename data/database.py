@@ -242,8 +242,7 @@ class WorkDB:
         self.conn.commit()
 
         print(list_likes)
-
-        if f"{answer_id}, " in list_likes:
+        if f"{answer_id}, " in list_likes[0]:
             print("Уже есть")
 
         else: 
@@ -251,20 +250,46 @@ class WorkDB:
             if list_likes[0] == None:
                 print("no")
 
-                count_like = self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()
+                count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
                 self.conn.commit()
-
-                if count_like == None:
+                
+                if count_like == 0:
                     count_like = 1
 
-                    self.c.execute(' UPDATE `answer` SET "count_likes" = ? WHERE "id" = ?', (count_like, answer_id,))
+                    self.c.execute(' UPDATE `answer` SET "count_like" = ? WHERE "id" = ?', (count_like, answer_id,))
                     self.conn.commit()
+
+                    self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (f"{answer_id}, ", liked_user_id,))
+                    self.conn.commit()
+
                 else:
-                    count_like += 1
+                    count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
+                    self.conn.commit()
+                    count_like +=1
 
+                    self.c.execute(' UPDATE `answer` SET "count_like" = ? WHERE "id" = ?', (count_like, answer_id,))
+                    self.conn.commit()
 
+                    self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (f"{answer_id}, ", liked_user_id,))
+                    self.conn.commit()
+            
             else:
-                pass
+                list = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()[0]
+                self.conn.commit()
+
+                new_list = list + f"{answer_id}, "
+                print(new_list)
+
+                count_like = int(self.c.execute(' SELECT "count_like" FROM `answer` WHERE "id" = ? ', (answer_id,)).fetchone()[0])
+                self.conn.commit()
+
+                count_like += 1
+                
+                self.c.execute(' UPDATE `answer` SET "count_like" = ? WHERE "id" = ?', (count_like, answer_id,))
+                self.conn.commit()    
+
+                self.c.execute(' UPDATE `users` SET "list_likes" = ? WHERE "user_id" = ? ', (new_list, liked_user_id,))
+                self.conn.commit()
 
         # self.conn.commit()
         
