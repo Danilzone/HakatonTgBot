@@ -241,7 +241,10 @@ class WorkDB:
         list_likes = self.c.execute(' SELECT "list_likes" FROM `users` WHERE "user_id" = ? ', (liked_user_id,)).fetchone()
         self.conn.commit()
 
+        print(f'[yellow bold] SELECT "list_likes" FROM `users` WHERE "user_id" = {liked_user_id}')
         print(list_likes)
+
+
         if f"{answer_id}, " in list_likes[0]:
             print("Уже есть")
 

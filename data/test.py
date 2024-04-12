@@ -4,4 +4,4 @@ from database import WorkDB
 db = WorkDB("main.db")
 
 
-res = db.like(5, 9009)
+res = db.like(7, 719833590)

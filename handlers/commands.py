@@ -255,6 +255,15 @@ async def find_text(message: Message, state: FSMContext):
         await message.reply("Успешно обновлено!")
 
 
+@router.callback_query(F.data[:5] == "LIKE ")
+async def edit_my_requests_callback(callback: CallbackQuery):
+    await callback.answer(" ")
+    print(callback.data[5:])
+    print(callback.message.from_user)
+    # db.like(callback.data[5:], callback.message.from_user.id)
+    await callback.message.reply(f"Лайк поставлен")
+
+
 """
 Работа с БД
 

@@ -26,7 +26,7 @@ console = Console()
 async def start(message : Message):
     await message.answer(f"Hi <b>{message.from_user.full_name}</b>", reply_markup=kb.main)
 
-    # db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
+    db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
     # db.setRequest(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username, "Майнинг", "Как в питоне сделать майнер?")
     # db.getRequests()
 
