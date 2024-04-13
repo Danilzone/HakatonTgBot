@@ -189,7 +189,7 @@ class WorkDB:
     def getAnswers(self, request_id ):            
         self.request_id = request_id
 
-        res = self.c.execute(' SELECT * FROM `answer` WHERE "request_id" = ? ', (request_id,)).fetchall()
+        res = self.c.execute(' SELECT * FROM `answer` WHERE "request_id" = ? ORDER BY "count_like" DESC ', (request_id,)).fetchall()
         self.conn.commit()
         
         if not res:

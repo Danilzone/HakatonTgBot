@@ -57,7 +57,10 @@ async def cmd_refund(message: Message):
 async def cmd_refund(message: Message):
     try:
         res_db = db.getRequests(message.from_user.id)[1]
-        await message.reply(f"выберите свой запрос", reply_markup=my_requests(res_db) )
+        if not res_db:
+            await message.answer("Вы еще не создавали запросы")
+        else:
+            await message.reply(f"Выберите свой запрос", reply_markup=my_requests(res_db) )
     except Exception:
         console.print_exception(show_locals=True)
 
