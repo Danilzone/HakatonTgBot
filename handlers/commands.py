@@ -23,7 +23,6 @@ console = Console()
 
 
 
-
 @router.message(F.text.lower() == "поиск🔎")
 async def cmd_refund(message: Message):
     

@@ -199,6 +199,7 @@ class WorkDB:
         
         return res
 
+
     def getMyAnswers(self, user_id):
         self.user_id = user_id
 
@@ -210,8 +211,12 @@ class WorkDB:
         for my_answ in res:
             req_ans = self.c.execute(' SELECT "request_title" FROM `requests` WHERE "id" = ? ', (my_answ[1],)).fetchone()
             self.conn.commit()
-            # print(f"\nТема: {req_ans[0]}\nВаш ответ: {my_answ[4]}\n")
-            answer +=[[my_answ[0],req_ans[0], my_answ[4]]]
+
+            if req_ans:
+                # print(req_ans[0])
+
+                # print(f"\nТема: {req_ans[0]}\nВаш ответ: {my_answ[4]}\n")
+                answer += [[my_answ[0],req_ans[0], my_answ[4]]]
         return answer
 
 
@@ -362,3 +367,32 @@ class WorkDB:
         return answers   
 
 
+    def rating(self):
+        res = self.c.execute(' SELECT "user_dogname", "likes" "likes" FROM `users` ORDER BY "likes" DESC LIMIT 5 ').fetchall()
+        self.conn.commit()
+
+        return res
+    
+    def my_acc(self, user_id):
+        self.user_id = user_id
+
+        res = self.c.execute(' SELECT "likes" FROM `users` WHERE "user_id" = ? ', (user_id,)).fetchone()[0]
+        self.conn.commit()
+        
+        count_anser = self.c.execute(' SELECT * FROM `answer` WHERE "user_id" = ? ', (user_id,)).fetchall()
+        self.conn.commit()
+
+        count_request = self.c.execute(' SELECT * FROM `requests` WHERE "user_id" = ? ', (user_id,)).fetchall()
+        self.conn.commit()
+
+        c_a = 0
+        c_r = 0
+
+        for ca in count_anser:
+            c_a +=1
+
+        for cr in count_request:
+            c_r +=1
+
+
+        return res, c_a, c_r

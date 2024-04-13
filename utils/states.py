@@ -7,7 +7,6 @@ class Form(StatesGroup):
     request_tags = State()
     request_id = State()
     # about = State()
-    # photo = State()
 
 
 class Create(StatesGroup):
@@ -15,7 +14,6 @@ class Create(StatesGroup):
     request_text = State()
     request_tags = State()
     request_id = State()
-
 
 class Search(StatesGroup):
     text = State()

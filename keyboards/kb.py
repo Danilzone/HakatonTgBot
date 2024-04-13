@@ -9,7 +9,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Личный кабинет")],
-    [KeyboardButton(text="Поиск🔎"), ]
+    [KeyboardButton(text="Поиск🔎"), KeyboardButton(text="Таблица рейтинга📈")] 
 ],
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
@@ -44,6 +44,10 @@ answer = ReplyKeyboardMarkup(keyboard=[
                             resize_keyboard=True,
                             input_field_placeholder="Выберите пунтк меню.")
 
+no_photo = ReplyKeyboardMarkup(keyboard=[
+    [KeyboardButton(text="Без фотографий")]
+],
+                            resize_keyboard=True,)
 
 change_request_inline = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Тема", callback_data="change_title"), InlineKeyboardButton(text="Тэг", callback_data="tags")],

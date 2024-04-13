@@ -10,8 +10,8 @@ from utils.states import Form, Search,SearchByTags, SetAnswer, EditMyAnswer, Cre
 
 from keyboards import kb
 from rich import print
+import time
 from data.database import WorkDB
-
 from keyboards.kb import my_requests
 from rich.console import Console
 
@@ -24,12 +24,19 @@ console = Console()
 
 @router.message(CommandStart())
 async def start(message : Message):
-    await message.answer(f"Hi <b>{message.from_user.full_name}</b>", reply_markup=kb.main)
+    if not message.from_user.username: 
+        await message.answer(f"Простите дорогой пиользователь, для того чтобы использовать нашего бота вам нужно в настройках телеграма указать <i>имя пользователя</i>", reply_markup=ReplyKeyboardRemove())
+    else:
+        await message.answer(f"Здравствуй <b>{message.from_user.full_name}</b>\nЕсли что-то не понятно, или нужна помощь, то пишите - <b>/help</b>", reply_markup=kb.main)
+        db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
 
-    db.setUser(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username)    
-    # db.setRequest(message.from_user.id, message.from_user.full_name, "@" + message.from_user.username, "Майнинг", "Как в питоне сделать майнер?")
-    # db.getRequests()
 
+
+@router.message(F.text.lower() == "/help")
+async def help(message: Message):
+    await message.answer("<b>1</b>. Чтобы перейти в личный кабинет - нажмите на кнопку Личный Кабинет в меню.\n \n<b>2</b>. Дабы найти запросы - нажмите на кнопку Поиск в меню. А также выберите тип поиска и введите искомый текст. Бот найдет все запросы по заданному тексту. Вы можете просмотреть запросы и увидеть их ответы, которые вы можете оценивать Лайком или Дизлайком.\n \n<b>3</b>. Внутри Личного кабинета есть возможности:\n    • Создать запрос с помощью одноименной кнопки.\n    • При нажатии на кнопку Мои Запросы можно увидеть все созданные вами запросы. Здесь можно отредактировать, просмотреть ответы и удалить запрос. Если на ваш запрос ответили вам придёт уведомление.\n    • В разделе Мои Ответы можно просмотреть ответы, данные вами на другие запросы. Их также можно отредактировать или удалить.\n \n<b>4</b>. Таблица Рейтинга - здесь отмечены последние пять пользователей, у которых наибольшая сумма лайков на их ответах.\n", reply_markup=kb.main)
+
+    
 
 @router.message(F.text.lower() == "на главный экран")
 async def cmd_refund(message: Message):
@@ -38,9 +45,12 @@ async def cmd_refund(message: Message):
 
 
 @router.message(F.text.lower() == "личный кабинет")
-async def cmd_refund(message: Message):
-    await message.reply(f"выберите один пункт",
+async def cmd_refund(message: Message):   
+    db.setUser(message.from_user.id, message.from_user.full_name, "@"+message.from_user.username)
+    res = db.my_acc(message.from_user.id)
+    await message.reply(f"<b>@{message.from_user.username}</b>\n \nВы дали ответ на {res[1]} запросов\nВы оставили {res[2]} запросов\nКол-во лайков: {res[0]}",
                         reply_markup=kb.office)
+    
 
 
 @router.message(F.text.lower() == "мои запросы")
@@ -66,12 +76,22 @@ async def my_answers(message: Message):
         console.print_exception(show_locals=True)
 
 
-@router.message(F.text.lower() == "рейтинговая таблица")
+@router.message(F.text.lower() == "таблица рейтинга📈")
 async def cmd_refund(message: Message):
-    await message.reply(f"выберите один пункт",
-                        reply_markup=kb.answer)
-
-
+    res = db.rating() 
+    i = 1
+    
+    for user in res:
+        if i == 1:
+            await message.answer(f"🥇Лидер🥇\nПользователь: <b>{user[0]}</b>\nКол-во лайков: <b>{user[1]}</b>")
+        elif i == 2:
+            await message.answer(f"🥈Второе место\nПользователь: <b>{user[0]}</b>\nКол-во лайков: <b>{user[1]}</b>")
+        elif i == 3:
+            await message.answer(f"🥉Третье место\nПользователь: <b>{user[0]}</b>\nКол-во лайков: <b>{user[1]}</b>")
+        else:
+            await message.answer(f"Пользователь: <b>{user[0]}</b>\nКол-во лайков: <b>{user[1]}</b>")
+        
+        i+=1
 
 # Тут мы получаем инфу с инлайн кнопок и выводим из бд нужный 'запрос'
 
@@ -97,9 +117,7 @@ async def fill_profile(message: Message, state: FSMContext):
 async def fill_profile(message: Message, state: FSMContext):
     await state.update_data(text=message.text)
     await state.set_state(Create.request_tags)
-    await message.answer(
-        "Осталось немного.\nУкажи теги для своего запроса\n \nПример: <code>Программирование, Языки, Проблема</code>",
-    )
+    await message.answer("Осталось немного.\nУкажи теги для своего запроса\n \nПример: <code>Программирование, Языки, Проблема</code>", reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(Create.request_tags)
@@ -114,6 +132,7 @@ async def fill_profile(message: Message, state: FSMContext):
         db.setRequest(f"{message.from_user.id}", f"{message.from_user.full_name}", f"@{message.from_user.username}", f"{request_title}", f"{request_text}", f"{request_tags}")
         await message.answer(
             f"<b>Ваш запрос успешно отправлен✅:</b>\n    💠тема:  <u>{request_title}</u>\n    •  {request_text}\n \n    Теги: <code>{request_tags}</code>", 
-        )
+        reply_markup=kb.office)
     except Exception:
         console.print_exception(show_locals=True)
+

@@ -3,5 +3,7 @@ from rich import print
 
 db = WorkDB("main.db")
 
-
-db.dislike(4, 12222222)
+# db.rating()
+# res = db.getMyAnswers(719833590)
+print(db.getRequest(719833590, 41))
+# print(res)
